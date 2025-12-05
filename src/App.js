@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import { useAuth } from "./context/AuthContext.js";
+import Login from "./pages/Login.js";
+import Register from "./pages/Register.js";
+import Home from "./pages/Home.js";
+import { useState } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+  const { user } = useAuth();
+  const [mode, setMode] = useState("login"); // 'login' | 'register'
+
+  if (!user) {
+    return (
+      <div className="min-h-screen grid place-items-center p-6">
+        <div className="w-full max-w-md bg-neutral-800 rounded-2xl p-6 shadow-2xl">
+          <div className="flex gap-4 mb-4">
+            <button className={`px-3 py-1 rounded ${mode==='login'?'bg-teal-600':''}`} onClick={()=>setMode("login")}>Login</button>
+            <button className={`px-3 py-1 rounded ${mode==='register'?'bg-teal-600':''}`} onClick={()=>setMode("register")}>Register</button>
+          </div>
+          {mode === "login" ? <Login /> : <Register />}
+        </div>
+      </div>
+    );
+  }
+
+  return <Home />;
 }
-
-export default App;
