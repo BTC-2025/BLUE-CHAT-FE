@@ -3,6 +3,7 @@ import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Home from "./pages/Home.js";
 import { useState } from "react";
+import logo from "./assets/logo.png";
 
 export default function App() {
   const { user } = useAuth();
@@ -12,9 +13,13 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-900 grid place-items-center p-4 sm:p-6">
         <div className="w-full max-w-md bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl">
-          {/* Logo/Title */}
+          {/* Logo */}
           <div className="text-center mb-6">
-            <div className="text-3xl sm:text-4xl mb-2">💬</div>
+            <img
+              src={logo}
+              alt="BTC Chat"
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-xl"
+            />
             <h1 className="text-xl sm:text-2xl font-bold text-blue-400">BTC Chat</h1>
           </div>
 

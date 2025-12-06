@@ -5,6 +5,7 @@ import ChatList from "./ChatList.js";
 import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
+import logo from "../assets/logo.jpg";
 
 export default function Sidebar({ onOpenChat, activeChatId }) {
   const { user } = useAuth();
@@ -46,10 +47,14 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
   return (
     <div className="flex flex-col h-full bg-slate-900 text-white">
 
-      {/* ✅ Header + New Group button */}
-      <div className="px-3 sm:px-4 py-3 bg-blue-900 sticky top-0 z-20 border-b border-slate-700 flex justify-between items-center">
-        <div className="font-semibold text-sm sm:text-base truncate max-w-[60%]">
-          Hi, {user?.full_name || user?.phone}
+      {/* ✅ Brand Header */}
+      <div className="px-3 sm:px-4 py-2 bg-blue-900 sticky top-0 z-20 border-b border-slate-700 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="BTC Chat" className="w-10 h-10 rounded-lg" />
+          <div>
+            <div className="font-bold text-sm sm:text-base text-white">BTC - Chat</div>
+            <div className="text-[10px] sm:text-xs text-blue-200">Hi, {user?.full_name || user?.phone}</div>
+          </div>
         </div>
 
         <button

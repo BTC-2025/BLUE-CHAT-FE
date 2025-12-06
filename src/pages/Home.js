@@ -1,6 +1,7 @@
 import Sidebar from "../components/Sidebar.js";
 import ChatWindow from "../components/ChatWindow.js";
 import { useState, useEffect } from "react";
+import logo from "../assets/logo.jpg";
 
 export default function Home() {
   const [activeChat, setActiveChat] = useState(null);
@@ -57,8 +58,9 @@ export default function Home() {
           ) : (
             <div className="h-full grid place-items-center text-slate-400 p-4 text-center">
               <div>
-                <div className="text-6xl mb-4">💬</div>
-                <div className="text-lg">Select a chat or search by phone to start messaging.</div>
+                <img src={logo} alt="BTC Chat" className="w-20 h-20 mx-auto mb-4 rounded-xl opacity-50" />
+                <div className="text-xl font-semibold text-slate-500 mb-2">BTC - Chat</div>
+                <div className="text-sm">Select a chat or search by phone to start messaging.</div>
               </div>
             </div>
           )}
