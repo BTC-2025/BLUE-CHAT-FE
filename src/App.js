@@ -6,16 +6,36 @@ import { useState } from "react";
 
 export default function App() {
   const { user } = useAuth();
-  const [mode, setMode] = useState("login"); // 'login' | 'register'
+  const [mode, setMode] = useState("login");
 
   if (!user) {
     return (
-      <div className="min-h-screen grid place-items-center p-6">
-        <div className="w-full max-w-md bg-neutral-800 rounded-2xl p-6 shadow-2xl">
-          <div className="flex gap-4 mb-4">
-            <button className={`px-3 py-1 rounded ${mode==='login'?'bg-teal-600':''}`} onClick={()=>setMode("login")}>Login</button>
-            <button className={`px-3 py-1 rounded ${mode==='register'?'bg-teal-600':''}`} onClick={()=>setMode("register")}>Register</button>
+      <div className="min-h-screen bg-slate-900 grid place-items-center p-4 sm:p-6">
+        <div className="w-full max-w-md bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl">
+          {/* Logo/Title */}
+          <div className="text-center mb-6">
+            <div className="text-3xl sm:text-4xl mb-2">💬</div>
+            <h1 className="text-xl sm:text-2xl font-bold text-blue-400">BTC Chat</h1>
           </div>
+
+          {/* Tab buttons */}
+          <div className="flex gap-2 mb-4">
+            <button
+              className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm sm:text-base transition-colors ${mode === 'login' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              onClick={() => setMode("login")}
+            >
+              Login
+            </button>
+            <button
+              className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm sm:text-base transition-colors ${mode === 'register' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              onClick={() => setMode("register")}
+            >
+              Register
+            </button>
+          </div>
+
           {mode === "login" ? <Login /> : <Register />}
         </div>
       </div>

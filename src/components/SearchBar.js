@@ -19,7 +19,7 @@ export default function SearchBar({ onOpen }) {
         `https://btc-chat-be.onrender.com/api/users/search/${phone}`,
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`, // ✅ Add token
+            Authorization: `Bearer ${user?.token}`,
           },
         }
       );
@@ -37,13 +37,12 @@ export default function SearchBar({ onOpen }) {
         { targetPhone: result.phone },
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`, // ✅ Add token
+            Authorization: `Bearer ${user?.token}`,
           },
         }
       );
 
-      onOpen(data); // { id, other }
-
+      onOpen(data);
       setPhone("");
       setResult(null);
 
@@ -56,26 +55,32 @@ export default function SearchBar({ onOpen }) {
     <div className="space-y-2">
       <div className="flex gap-2">
         <input
-          className="flex-1 bg-neutral-800 rounded-xl px-3 py-2 outline-none"
+          className="flex-1 bg-slate-800 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
           placeholder="Search by phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && search()}
         />
-        <button className="px-3 py-2 bg-teal-600 rounded-xl" onClick={search}>
+        <button
+          className="px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-medium transition-colors"
+          onClick={search}
+        >
           Search
         </button>
       </div>
 
-      {error && <div className="text-sm text-red-400">{error}</div>}
+      {error && <div className="text-xs sm:text-sm text-red-400">{error}</div>}
 
       {result && (
-        <div className="p-3 rounded-xl bg-neutral-800 flex items-center justify-between">
-          <div>
-            <div className="font-medium">{result.full_name || "Unnamed"}</div>
-            <div className="text-xs text-neutral-400">{result.phone}</div>
+        <div className="p-3 rounded-xl bg-slate-800 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="font-medium text-sm sm:text-base truncate">{result.full_name || "Unnamed"}</div>
+            <div className="text-xs text-slate-400">{result.phone}</div>
           </div>
-          <button className="px-3 py-2 bg-teal-600 rounded-lg" onClick={openChat}>
+          <button
+            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors flex-shrink-0"
+            onClick={openChat}
+          >
             Chat
           </button>
         </div>

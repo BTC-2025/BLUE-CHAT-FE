@@ -4,12 +4,12 @@ import SearchBar from "./SearchBar.js";
 import ChatList from "./ChatList.js";
 import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
-import GroupCreateModal from "./GroupCreateModal";   // ✅ Add this
+import GroupCreateModal from "./GroupCreateModal";
 
 export default function Sidebar({ onOpenChat, activeChatId }) {
   const { user } = useAuth();
   const [chats, setChats] = useState([]);
-  const [openCreate, setOpenCreate] = useState(false); // ✅ modal toggle
+  const [openCreate, setOpenCreate] = useState(false);
 
   const load = async () => {
     try {
@@ -44,16 +44,16 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
   }, [user]);
 
   return (
-    <div className="flex flex-col h-full bg-neutral-900 text-white">
+    <div className="flex flex-col h-full bg-slate-900 text-white">
 
       {/* ✅ Header + New Group button */}
-      <div className="px-4 py-3 bg-neutral-800 sticky top-0 z-20 border-b border-neutral-700 flex justify-between items-center">
-        <div className="font-semibold">
+      <div className="px-3 sm:px-4 py-3 bg-blue-900 sticky top-0 z-20 border-b border-slate-700 flex justify-between items-center">
+        <div className="font-semibold text-sm sm:text-base truncate max-w-[60%]">
           Hi, {user?.full_name || user?.phone}
         </div>
 
         <button
-          className="px-2 py-1 bg-teal-700 hover:bg-teal-600 text-xs rounded"
+          className="px-2 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-xs sm:text-sm rounded-lg font-medium transition-colors"
           onClick={() => setOpenCreate(true)}
         >
           + Group
@@ -61,7 +61,7 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
       </div>
 
       {/* ✅ Search */}
-      <div className="p-3 bg-neutral-900 sticky top-[56px] z-10 border-b border-neutral-800">
+      <div className="p-2 sm:p-3 bg-slate-900 sticky top-[56px] z-10 border-b border-slate-800">
         <SearchBar
           onOpen={async (chat) => {
             onOpenChat(chat);
@@ -73,8 +73,8 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
         />
       </div>
 
-      {/* ✅ Chat List (NOT scrollable) */}
-      <div className="flex-1 overflow-hidden sticky top-[112px]">
+      {/* ✅ Chat List */}
+      <div className="flex-1 overflow-y-auto">
         <ChatList
           items={chats}
           activeId={activeChatId}
@@ -93,7 +93,7 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
         onClose={() => setOpenCreate(false)}
         onCreated={async () => {
           setOpenCreate(false);
-          await load(); // refresh chat list after creating group
+          await load();
         }}
       />
     </div>

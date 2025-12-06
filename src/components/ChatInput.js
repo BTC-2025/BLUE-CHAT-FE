@@ -5,8 +5,6 @@ export default function ChatInput({ onSend, chatId }) {
   const [val, setVal] = useState("");
   const [typing, setTyping] = useState(false);
   const textareaRef = useRef(null);
-
-  // store timeout across renders
   const typingTimeoutRef = useRef(null);
 
   const submit = () => {
@@ -15,12 +13,10 @@ export default function ChatInput({ onSend, chatId }) {
     onSend(text);
     setVal("");
 
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
 
-    // stop typing when user sends message
     socket.emit("typing:stop", { chatId });
     setTyping(false);
   };
@@ -29,22 +25,18 @@ export default function ChatInput({ onSend, chatId }) {
     const v = e.target.value;
     setVal(v);
 
-    // Auto-resize textarea
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 150) + "px";
     }
 
-    // start typing
     if (!typing) {
       setTyping(true);
       socket.emit("typing:start", { chatId });
     }
 
-    // reset previous timeout
     clearTimeout(typingTimeoutRef.current);
 
-    // stop typing after 800ms of inactivity
     typingTimeoutRef.current = setTimeout(() => {
       setTyping(false);
       socket.emit("typing:stop", { chatId });
@@ -52,7 +44,6 @@ export default function ChatInput({ onSend, chatId }) {
   };
 
   const handleKeyDown = (e) => {
-    // Enter sends message, Shift+Enter adds new line
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       submit();
@@ -63,8 +54,8 @@ export default function ChatInput({ onSend, chatId }) {
     <div className="flex gap-2 items-end">
       <textarea
         ref={textareaRef}
-        className="flex-1 bg-neutral-800 rounded-xl px-4 py-3 outline-none resize-none overflow-y-auto"
-        placeholder="Type a message (Shift+Enter for new line)"
+        className="flex-1 bg-slate-800 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 outline-none resize-none overflow-y-auto text-sm sm:text-base focus:ring-2 focus:ring-blue-500 transition-shadow"
+        placeholder="Type a message..."
         value={val}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
@@ -73,9 +64,12 @@ export default function ChatInput({ onSend, chatId }) {
       />
       <button
         onClick={submit}
-        className="px-4 py-3 bg-teal-600 rounded-xl hover:bg-teal-500 h-fit"
+        className="px-3 sm:px-4 py-2.5 sm:py-3 bg-blue-600 rounded-xl hover:bg-blue-500 transition-colors font-medium text-sm sm:text-base"
       >
-        Send
+        <span className="hidden sm:inline">Send</span>
+        <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
       </button>
     </div>
   );

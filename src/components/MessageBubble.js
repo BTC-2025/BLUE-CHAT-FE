@@ -275,20 +275,21 @@ export default function MessageBubble({ message, mine, isGroup }) {
 
       {/* ✅ Chat Bubble */}
       <div
-        className={`rounded-2xl px-4 py-2 ${mine ? "bg-teal-700" : "bg-neutral-800"
+        className={`rounded-2xl px-3 sm:px-4 py-2 max-w-[85%] sm:max-w-[75%] ${mine ? "bg-blue-600" : "bg-slate-800"
           }`}
       >
         {/* ✅ Show sender name for group chats (only for other users' messages) */}
         {isGroup && !mine && (
-          <div className="text-xs text-purple-400 font-semibold mb-1">
+          <div className="text-[10px] sm:text-xs text-blue-300 font-semibold mb-1">
             {senderName}
           </div>
         )}
 
-        <div className="whitespace-pre-wrap">{message.body}</div>
+        <div className="whitespace-pre-wrap text-sm sm:text-base break-words">{message.body}</div>
 
         {/* ✅ Ticks + Time */}
-        <div className="text-[10px] text-neutral-300 text-right mt-1 flex gap-1 items-center">
+        <div className={`text-[10px] text-right mt-1 flex gap-1 items-center justify-end ${mine ? "text-blue-200" : "text-slate-400"
+          }`}>
           <span>{dayjs(message.createdAt).format("HH:mm")}</span>
           {renderTicks()}
         </div>
