@@ -285,7 +285,36 @@ export default function MessageBubble({ message, mine, isGroup }) {
           </div>
         )}
 
-        <div className="whitespace-pre-wrap text-sm sm:text-base break-words">{message.body}</div>
+        {/* ✅ Check if message has 5+ lines - show as code block */}
+        {message.body && message.body.split('\n').length >= 5 ? (
+          <div className="relative">
+            {/* Copy Button */}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(message.body);
+                // Visual feedback
+                const btn = document.getElementById(`copy-btn-${message._id}`);
+                if (btn) {
+                  btn.textContent = '✓ Copied';
+                  setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+                }
+              }}
+              id={`copy-btn-${message._id}`}
+              className="absolute top-2 right-2 text-[10px] sm:text-xs bg-slate-600 hover:bg-slate-500 px-2 py-1 rounded transition-colors"
+            >
+              Copy
+            </button>
+            {/* Code Block */}
+            <div className={`rounded-lg p-3 pt-8 overflow-x-auto text-xs sm:text-sm font-mono ${mine ? "bg-blue-800" : "bg-slate-900"
+              }`}>
+              <pre className="whitespace-pre-wrap break-words">{message.body}</pre>
+            </div>
+          </div>
+        ) : (
+          <div className="whitespace-pre-wrap text-sm sm:text-base break-words">
+            {message.body}
+          </div>
+        )}
 
         {/* ✅ Ticks + Time */}
         <div className={`text-[10px] text-right mt-1 flex gap-1 items-center justify-end ${mine ? "text-blue-200" : "text-slate-400"

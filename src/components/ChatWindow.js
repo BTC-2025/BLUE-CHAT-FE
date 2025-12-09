@@ -700,6 +700,19 @@ export default function ChatWindow({ chat, onBack }) {
               {blockStatus.iBlockedThem ? "Unblock" : "Block"}
             </button>
           )}
+
+          {/* Close Chat Button */}
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-1.5 hover:bg-blue-800 rounded-lg transition-colors"
+              title="Close chat"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
