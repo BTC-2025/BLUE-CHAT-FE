@@ -189,6 +189,7 @@ import { socket } from "../socket";
 
 export default function MessageBubble({ message, mine, isGroup, isAdmin }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   // ✅ Determine if deleted
   const isDeletedForAll = message.deletedForEveryone;
@@ -324,13 +325,12 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin }) {
             {message.attachments.map((att, idx) => (
               <div key={idx}>
                 {att.type === "image" ? (
-                  <a href={att.url} target="_blank" rel="noopener noreferrer">
-                    <img
-                      src={att.url}
-                      alt={att.name || "Image"}
-                      className="max-w-full max-h-60 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                    />
-                  </a>
+                  <img
+                    src={att.url}
+                    alt={att.name || "Image"}
+                    className="max-w-full max-h-60 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setLightboxImage(att.url)}
+                  />
                 ) : att.type === "video" ? (
                   <video
                     src={att.url}
@@ -353,6 +353,27 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin }) {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ✅ Image Lightbox */}
+        {lightboxImage && (
+          <div
+            className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4"
+            onClick={() => setLightboxImage(null)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 transition-colors"
+              onClick={() => setLightboxImage(null)}
+            >
+              ×
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Full size"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         )}
 
