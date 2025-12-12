@@ -238,13 +238,20 @@ export default function ChatInput({ onSend, chatId }) {
 
       {/* Recording UI */}
       {recording && (
-        <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-200 animate-pulse">
-          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-          <span className="text-red-600 font-medium">Recording... {formatTime(recordingTime)}</span>
+        <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200">
+          {/* Animated waveform */}
+          <div className="flex items-center gap-1">
+            <div className="w-1 h-4 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "0ms" }} />
+            <div className="w-1 h-6 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "150ms" }} />
+            <div className="w-1 h-3 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
+            <div className="w-1 h-5 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "450ms" }} />
+            <div className="w-1 h-4 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: "600ms" }} />
+          </div>
+          <span className="text-red-600 font-semibold">{formatTime(recordingTime)}</span>
           <div className="flex-1" />
           <button
             onClick={cancelRecording}
-            className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+            className="p-2.5 text-red-500 hover:bg-red-200 rounded-full transition-all"
             title="Cancel"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,13 +260,24 @@ export default function ChatInput({ onSend, chatId }) {
           </button>
           <button
             onClick={stopRecording}
-            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            className="p-2.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all shadow-md hover:shadow-lg"
             title="Send"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           </button>
+        </div>
+      )}
+
+      {/* Uploading Voice Message UI */}
+      {!recording && uploading && (
+        <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-secondary/10 to-secondary/20 rounded-xl border border-secondary/30">
+          <svg className="w-6 h-6 text-secondary animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <span className="text-secondary font-medium">Sending voice message...</span>
         </div>
       )}
 
