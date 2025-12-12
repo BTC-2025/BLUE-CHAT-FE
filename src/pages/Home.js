@@ -1,16 +1,49 @@
 import Sidebar from "../components/Sidebar.js";
 import ChatWindow from "../components/ChatWindow.js";
+import CallModal from "../components/CallModal.js";
 import { useState, useEffect } from "react";
+import { socket } from "../socket";
+import { useAuth } from "../context/AuthContext.js";
 import logo from "../assets/logo.jpg";
 
 export default function Home() {
+  const { user } = useAuth();
   const [activeChat, setActiveChat] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
+
+  // ✅ Call state
+  const [callState, setCallState] = useState({
+    isOpen: false,
+    callType: null, // "video" or "audio"
+    targetUserId: null,
+    targetName: null,
+    isIncoming: false,
+    callerId: null,
+    callerName: null,
+  });
 
   useEffect(() => {
     const force = () => setReloadKey(k => k + 1);
     window.addEventListener("chat:reload", force);
     return () => window.removeEventListener("chat:reload", force);
+  }, []);
+
+  // ✅ Listen for incoming calls
+  useEffect(() => {
+    const handleIncomingCall = ({ callerId, callerName, callerAvatar, callType }) => {
+      setCallState({
+        isOpen: true,
+        callType,
+        targetUserId: null,
+        targetName: null,
+        isIncoming: true,
+        callerId,
+        callerName,
+      });
+    };
+
+    socket.on("call:incoming", handleIncomingCall);
+    return () => socket.off("call:incoming", handleIncomingCall);
   }, []);
 
   // When a chat is selected
@@ -21,6 +54,33 @@ export default function Home() {
   // Back button handler - go back to chat list
   const handleBack = () => {
     setActiveChat(null);
+  };
+
+  // ✅ Start a call
+  const handleStartCall = (callType) => {
+    if (!activeChat || activeChat.isGroup) return;
+    setCallState({
+      isOpen: true,
+      callType,
+      targetUserId: activeChat.other?.id,
+      targetName: activeChat.other?.full_name || activeChat.other?.phone || "Unknown",
+      isIncoming: false,
+      callerId: null,
+      callerName: null,
+    });
+  };
+
+  // ✅ Close call modal
+  const handleCloseCall = () => {
+    setCallState({
+      isOpen: false,
+      callType: null,
+      targetUserId: null,
+      targetName: null,
+      isIncoming: false,
+      callerId: null,
+      callerName: null,
+    });
   };
 
   return (
@@ -54,6 +114,7 @@ export default function Home() {
               key={activeChat?.id + reloadKey}
               chat={activeChat}
               onBack={handleBack}
+              onStartCall={handleStartCall}
             />
           ) : (
             <div className="h-full grid place-items-center text-primary/60 p-4 text-center bg-background">
@@ -67,6 +128,13 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* ✅ Call Modal */}
+      <CallModal
+        callState={callState}
+        onClose={handleCloseCall}
+        userId={user?.id}
+      />
     </div>
   );
 }
