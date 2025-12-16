@@ -187,7 +187,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { socket } from "../socket";
 
-export default function MessageBubble({ message, mine, isGroup, isAdmin }) {
+export default function MessageBubble({ message, mine, isGroup, isAdmin, onReply, onForward }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState(null);
 
@@ -266,6 +266,28 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin }) {
                             p-2 text-xs min-w-[140px] border border-background-dark z-50 ${mine ? "right-0" : "left-0"
               }`}>
 
+              {/* Reply button */}
+              <button
+                className="block w-full text-left px-2 py-1 hover:bg-background-dark rounded text-primary"
+                onClick={() => {
+                  onReply?.(message);
+                  setMenuOpen(false);
+                }}
+              >
+                ↩️ Reply
+              </button>
+
+              {/* Forward button */}
+              <button
+                className="block w-full text-left px-2 py-1 hover:bg-background-dark rounded text-primary"
+                onClick={() => {
+                  onForward?.(message);
+                  setMenuOpen(false);
+                }}
+              >
+                ↪️ Forward
+              </button>
+
               {/* Pin/Unpin button */}
               <button
                 className="block w-full text-left px-2 py-1 hover:bg-background-dark rounded text-secondary-dark"
@@ -319,7 +341,27 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin }) {
           </div>
         )}
 
-        {/* ✅ Attachments */}
+        {/* ✅ Forwarded indicator */}
+        {message.forwardedFrom?.originalSender && (
+          <div className={`text-xs mb-1 italic ${mine ? "text-white/60" : "text-primary/50"}`}>
+            ↪️ Forwarded from {message.forwardedFrom.originalSender.full_name || message.forwardedFrom.originalSender.phone}
+          </div>
+        )}
+
+        {/* ✅ Reply preview */}
+        {message.replyTo && (
+          <div className={`text-xs mb-2 p-2 rounded-lg border-l-2 ${mine
+              ? "bg-white/10 border-white/40 text-white/80"
+              : "bg-background-dark/50 border-secondary/60 text-primary/70"
+            }`}>
+            <div className="font-semibold text-xs mb-0.5">
+              {message.replyTo.sender?.full_name || message.replyTo.sender?.phone || "Unknown"}
+            </div>
+            <div className="truncate">
+              {message.replyTo.body || (message.replyTo.attachments?.length ? "[attachment]" : "")}
+            </div>
+          </div>
+        )}
         {message.attachments && message.attachments.length > 0 && (
           <div className="space-y-2 mb-2">
             {message.attachments.map((att, idx) => (

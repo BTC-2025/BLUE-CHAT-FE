@@ -358,12 +358,17 @@ import { useAuth } from "../context/AuthContext.js";
 import MessageBubble from "./MessageBubble.js";
 import ChatInput from "./ChatInput.js";
 import GroupManageModal from "./GroupManageModal";
+import ForwardModal from "./ForwardModal";
 
 export default function ChatWindow({ chat, onBack, onStartCall }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const scrollerRef = useRef(null);
   const [openManage, setOpenManage] = useState(false);
+
+  // ✅ Reply/Forward state
+  const [replyTo, setReplyTo] = useState(null);
+  const [forwardMessage, setForwardMessage] = useState(null);
 
   // ✅ Block state
   const [blockStatus, setBlockStatus] = useState({
@@ -638,8 +643,8 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
     isInitialLoad.current = true;
   }, [chat.id]);
 
-  // ✅ Send message with attachments
-  const send = (text, attachments = []) => {
+  // ✅ Send message with attachments and replyTo
+  const send = (text, attachments = [], replyToId = null) => {
     socket.emit("message:send", {
       chatId: chat.id,
       senderId: user.id,
@@ -648,7 +653,8 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
         url: att.url,
         type: att.type,
         name: att.name
-      }))
+      })),
+      replyTo: replyToId
     });
   };
 
@@ -863,6 +869,8 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
             chatId={chat.id}
             isGroup={chat.isGroup}
             isAdmin={chat.isGroup && chat.admins?.includes(user.id)}
+            onReply={(msg) => setReplyTo(msg)}
+            onForward={(msg) => setForwardMessage(msg)}
           />
         ))}
       </div>
@@ -876,16 +884,30 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
               : "You cannot send messages to this user"}
           </div>
         ) : (
-          <ChatInput onSend={send} />
+          <ChatInput
+            onSend={send}
+            chatId={chat.id}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+          />
         )}
       </div>
 
       {/* ✅ Group Manage Modal */}
       <GroupManageModal
-        chatId={chat.id}
+        chat={chat}
         open={openManage}
         onClose={() => setOpenManage(false)}
       />
+
+      {/* ✅ Forward Modal */}
+      {forwardMessage && (
+        <ForwardModal
+          message={forwardMessage}
+          onClose={() => setForwardMessage(null)}
+        />
+      )}
     </div>
   );
 }
+

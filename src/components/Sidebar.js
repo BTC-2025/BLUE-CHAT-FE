@@ -5,12 +5,14 @@ import ChatList from "./ChatList.js";
 import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
+import ProfileModal from "./ProfileModal";
 import logo from "../assets/logo.jpg";
 
 export default function Sidebar({ onOpenChat, activeChatId }) {
   const { user } = useAuth();
   const [chats, setChats] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
 
   const load = async () => {
     try {
@@ -78,7 +80,7 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
     return () => socket.off("chats:update", onUnreadReset);
   }, [user]);
 
-  // ✅ Listen for chat pin/unpin events
+  // ✅ Listen for pin/unpin events
   useEffect(() => {
     const onChatPinned = ({ chatId }) => {
       setChats((prev) => {
@@ -124,13 +126,23 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
       {/* ✅ Brand Header with glassmorphism */}
       <div className="px-4 sm:px-5 py-3.5 bg-gradient-to-r from-primary to-primary-light sticky top-0 z-20 shadow-header flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <img src={logo} alt="BTC Chat" className="w-11 h-11 rounded-xl shadow-md ring-2 ring-white/20" />
+          {/* Profile Button */}
+          <button
+            onClick={() => setOpenProfile(true)}
+            className="relative group"
+          >
+            <div className="w-11 h-11 rounded-xl shadow-md ring-2 ring-white/20 overflow-hidden bg-white/10 hover:ring-white/40 transition-all">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <img src={logo} alt="BTC Chat" className="w-full h-full object-cover" />
+              )}
+            </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-primary animate-pulse" />
-          </div>
+          </button>
           <div>
             <div className="font-bold text-base sm:text-lg text-white tracking-tight">BTC Chat</div>
-            <div className="text-[11px] sm:text-xs text-secondary/90 font-medium">Hi, {user?.full_name || user?.phone}</div>
+            <div className="text-[11px] sm:text-xs text-secondary/90 font-medium">{user?.full_name || user?.phone}</div>
           </div>
         </div>
 
@@ -144,6 +156,9 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
           <span>New Group</span>
         </button>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal open={openProfile} onClose={() => setOpenProfile(false)} />
 
       {/* ✅ Search with improved styling */}
       <div className="p-3 sm:p-4 bg-white/50 backdrop-blur-sm sticky top-[62px] z-10 border-b border-background-dark/50">

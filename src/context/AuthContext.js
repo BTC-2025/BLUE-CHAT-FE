@@ -33,11 +33,12 @@ export default function AuthProvider({ children }) {
     return data;
   };
 
-  const register = async (phone, full_name, password) => {
+  const register = async (phone, full_name, password, avatar = "") => {
     const { data } = await api.post("/auth/register", {
       phone,
       full_name,
       password,
+      avatar, // ✅ Support avatar on signup
     });
 
     // ✅ FIXED — Add missing token setting

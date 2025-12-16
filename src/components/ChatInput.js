@@ -3,7 +3,7 @@ import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
-export default function ChatInput({ onSend, chatId }) {
+export default function ChatInput({ onSend, chatId, replyTo, onCancelReply }) {
   const { user } = useAuth();
   const [val, setVal] = useState("");
   const [typing, setTyping] = useState(false);
@@ -22,10 +22,11 @@ export default function ChatInput({ onSend, chatId }) {
     const text = val.trim();
     if (!text && attachments.length === 0) return;
 
-    // Send message with attachments
-    onSend(text, attachments);
+    // Send message with attachments and replyTo
+    onSend(text, attachments, replyTo?._id);
     setVal("");
     setAttachments([]);
+    onCancelReply?.(); // Clear reply after sending
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -195,6 +196,28 @@ export default function ChatInput({ onSend, chatId }) {
 
   return (
     <div className="space-y-2">
+      {/* Reply Preview */}
+      {replyTo && (
+        <div className="flex items-center gap-2 p-2 bg-secondary/10 rounded-xl border border-secondary/30">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-semibold text-secondary">
+              Replying to {replyTo.sender?.full_name || replyTo.sender?.phone || "Unknown"}
+            </div>
+            <div className="text-sm text-primary/70 truncate">
+              {replyTo.body || "[attachment]"}
+            </div>
+          </div>
+          <button
+            onClick={onCancelReply}
+            className="p-1 text-primary/50 hover:text-primary rounded-lg hover:bg-white/50 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Attachment Preview */}
       {attachments.length > 0 && (
         <div className="flex gap-2 flex-wrap p-2 bg-white/50 rounded-xl border border-background-dark/30">
