@@ -334,8 +334,12 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin, onReply
         {/* ✅ Show sender name for group chats (only for other users' messages) */}
         {isGroup && !mine && (
           <div className="text-[11px] sm:text-xs text-secondary-dark font-bold mb-1.5 flex items-center gap-1.5 pr-6">
-            <span className="w-5 h-5 rounded-full bg-gradient-to-br from-secondary to-secondary-dark text-white grid place-items-center text-[8px] font-bold uppercase">
-              {senderName?.[0] || "?"}
+            <span className="w-5 h-5 rounded-full bg-gradient-to-br from-secondary to-secondary-dark text-white grid place-items-center text-[8px] font-bold uppercase overflow-hidden">
+              {message.sender?.avatar ? (
+                <img src={message.sender.avatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                senderName?.[0] || "?"
+              )}
             </span>
             {senderName}
           </div>
@@ -351,8 +355,8 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin, onReply
         {/* ✅ Reply preview */}
         {message.replyTo && (
           <div className={`text-xs mb-2 p-2 rounded-lg border-l-2 ${mine
-              ? "bg-white/10 border-white/40 text-white/80"
-              : "bg-background-dark/50 border-secondary/60 text-primary/70"
+            ? "bg-white/10 border-white/40 text-white/80"
+            : "bg-background-dark/50 border-secondary/60 text-primary/70"
             }`}>
             <div className="font-semibold text-xs mb-0.5">
               {message.replyTo.sender?.full_name || message.replyTo.sender?.phone || "Unknown"}

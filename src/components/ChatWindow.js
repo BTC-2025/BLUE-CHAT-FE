@@ -703,11 +703,13 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
 
           {/* Avatar with gradient and online indicator */}
           <div className="relative">
-            <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full grid place-items-center text-sm font-bold flex-shrink-0 text-white shadow-md ${chat.isGroup
+            <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full grid place-items-center text-sm font-bold flex-shrink-0 text-white shadow-md overflow-hidden ${chat.isGroup
               ? "bg-gradient-to-br from-secondary-dark to-secondary"
               : "bg-gradient-to-br from-secondary to-secondary-light"
               }`}>
-              {chat.isGroup
+              {!chat.isGroup && chat.other?.avatar ? (
+                <img src={chat.other.avatar} alt="" className="w-full h-full object-cover" />
+              ) : chat.isGroup
                 ? (chat.title?.[0] || "G")
                 : (chat.other?.full_name?.[0] || chat.other?.phone?.slice(-2))}
             </div>
