@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
 import ProfileModal from "./ProfileModal";
+import StatusSection from "./StatusSection";
 import logo from "../assets/logo.jpg";
 
 export default function Sidebar({ onOpenChat, activeChatId }) {
@@ -176,6 +177,9 @@ export default function Sidebar({ onOpenChat, activeChatId }) {
 
       {/* Profile Modal */}
       <ProfileModal open={openProfile} onClose={() => setOpenProfile(false)} />
+
+      {/* Status stories section */}
+      <StatusSection />
 
       {/* ✅ Search with improved styling */}
       <div className="p-3 sm:p-4 bg-white/50 backdrop-blur-sm sticky top-[62px] z-10 border-b border-background-dark/50">
