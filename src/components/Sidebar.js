@@ -163,24 +163,27 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Status Button with Label */}
           <button
-            title="View Status"
-            className="p-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-xl transition-all duration-200 ring-1 ring-white/20 hover:ring-white/40"
             onClick={onViewStatus}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-xl transition-all duration-200 ring-1 ring-white/20 hover:ring-white/40 group"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider hidden sm:block">Status</span>
           </button>
+
+          {/* New Group Button */}
           <button
-            className="px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm rounded-xl font-semibold transition-all duration-200 flex items-center gap-1.5 ring-1 ring-white/20 hover:ring-white/40"
+            className="px-2.5 sm:px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[11px] sm:text-xs sm:text-sm rounded-xl font-semibold transition-all duration-200 flex items-center gap-1.5 ring-1 ring-white/20 hover:ring-white/40"
             onClick={() => setOpenCreate(true)}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            <span>New Group</span>
+            <span className="hidden sm:block">New Group</span>
           </button>
         </div>
       </div>
