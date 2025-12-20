@@ -4,7 +4,7 @@ import Register from "./pages/Register.js";
 import Home from "./pages/Home.js";
 import DeleteAccount from "./pages/DeleteAccount.js"; // ✅ New Import
 import { useState, useEffect } from "react";
-import logo from "./assets/Blue-Chat.png";
+import logo from "./assets/Blue-Chat.jpeg";
 
 export default function App() {
   const { user } = useAuth();

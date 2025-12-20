@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
 import ProfileModal from "./ProfileModal";
-import logo from "../assets/Blue-Chat.png";
+import logo from "../assets/Blue-Chat.jpeg";
 
 export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
   const { user } = useAuth();

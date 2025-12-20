@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { API_BASE } from "../api";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/Blue-Chat.png";
+import logo from "../assets/Blue-Chat.jpeg";
 import Login from "./Login";
 
 export default function DeleteAccount() {

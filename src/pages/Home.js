@@ -5,7 +5,7 @@ import StatusPage from "./StatusPage.js";
 import { useState, useEffect } from "react";
 import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext.js";
-import logo from "../assets/Blue-Chat.png";
+import logo from "../assets/Blue-Chat.jpeg";
 
 export default function Home() {
   const { user } = useAuth();
