@@ -149,8 +149,8 @@ export default function StatusPage({ onBack }) {
                 />
             )}
 
-            {/* LEFT SIDEBAR */}
-            <div className="w-80 hidden md:flex flex-col bg-black/40 backdrop-blur-2xl border-r border-white/10 z-50 overflow-hidden">
+            {/* LEFT SIDEBAR - Responsive: Hidden on mobile when viewing status */}
+            <div className={`w-full md:w-80 flex flex-col bg-black/40 backdrop-blur-2xl border-r border-white/10 z-50 overflow-hidden ${selectedGroupIdx !== null ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
                     <h2 className="text-white font-bold text-xl tracking-tight">Status</h2>
                     <button onClick={onBack} title="Back to Chats" className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/60">
@@ -222,8 +222,8 @@ export default function StatusPage({ onBack }) {
                 </div>
             </div>
 
-            {/* VIEWER AREA */}
-            <div className="flex-1 flex flex-col relative h-full">
+            {/* VIEWER AREA - Responsive: Hidden on mobile when list is visible */}
+            <div className={`flex-1 flex flex-col relative h-full ${selectedGroupIdx === null ? 'hidden md:flex' : 'flex'}`}>
                 {currentStatus ? (
                     <>
                         <div className="absolute top-0 inset-x-0 p-4 sm:p-6 z-[60] flex flex-col gap-4 bg-gradient-to-b from-black/80 to-transparent">
@@ -239,9 +239,9 @@ export default function StatusPage({ onBack }) {
                             </div>
 
                             <div className="flex items-center justify-between w-full max-w-[500px] mx-auto mt-2">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 sm:gap-3">
                                     <button onClick={() => setSelectedGroupIdx(null)} className="text-white p-2 hover:bg-white/10 rounded-full transition-colors">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                                     </button>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-white/10 shadow-lg">
