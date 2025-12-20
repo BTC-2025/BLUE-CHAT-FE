@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { API_BASE } from "../api";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.png";
+import logo from "../assets/Blue-Chat.png";
 import Login from "./Login";
 
 export default function DeleteAccount() {
@@ -86,7 +86,7 @@ export default function DeleteAccount() {
                 {/* Right Side - Content */}
                 <div className="p-8 md:w-2/3 flex flex-col justify-center">
                     <div className="mb-6">
-                        <h1 className="text-2xl font-bold text-primary">Delete your BTC Chat Account</h1>
+                        <h1 className="text-2xl font-bold text-primary">Delete your BlueChat Account</h1>
                         <p className="text-primary/60 text-sm mt-2">Logged in as <span className="font-bold text-primary">{user.phone}</span></p>
                     </div>
 

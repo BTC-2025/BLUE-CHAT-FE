@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
 import ProfileModal from "./ProfileModal";
-import logo from "../assets/logo.jpg";
+import logo from "../assets/Blue-Chat.png";
 
 export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
   const { user } = useAuth();
@@ -152,13 +152,13 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
               {user?.avatar ? (
                 <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <img src={logo} alt="BTC Chat" className="w-full h-full object-cover" />
+                <img src={logo} alt="BlueChat" className="w-full h-full object-cover" />
               )}
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-primary animate-pulse" />
           </button>
           <div>
-            <div className="font-bold text-base sm:text-lg text-white tracking-tight">BTC Chat</div>
+            <div className="font-bold text-base sm:text-lg text-white tracking-tight">BlueChat</div>
             <div className="text-[11px] sm:text-xs text-secondary/90 font-medium">{user?.full_name || user?.phone}</div>
           </div>
         </div>

@@ -186,7 +186,7 @@ export default function ProfileModal({ open, onClose }) {
                                     </svg>
                                     About
                                 </div>
-                                <p className="text-primary text-sm leading-relaxed">{about || "Hey there! I am using BTC Chat."}</p>
+                                <p className="text-primary text-sm leading-relaxed">{about || "Hey there! I am using BlueChat."}</p>
                             </div>
                         </div>
                     )}

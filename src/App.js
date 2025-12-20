@@ -4,7 +4,7 @@ import Register from "./pages/Register.js";
 import Home from "./pages/Home.js";
 import DeleteAccount from "./pages/DeleteAccount.js"; // ✅ New Import
 import { useState, useEffect } from "react";
-import logo from "./assets/logo.png";
+import logo from "./assets/Blue-Chat.png";
 
 export default function App() {
   const { user } = useAuth();
@@ -32,10 +32,10 @@ export default function App() {
           <div className="text-center mb-6">
             <img
               src={logo}
-              alt="BTC Chat"
+              alt="BlueChat"
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-xl"
             />
-            <h1 className="text-xl sm:text-2xl font-bold text-primary">BTC Chat</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">BlueChat</h1>
           </div>
 
           {/* Tab buttons */}

@@ -126,8 +126,8 @@ export default function Home() {
           ) : (
             <div className="h-full grid place-items-center text-primary/60 p-4 text-center bg-background">
               <div>
-                <img src={logo} alt="BTC Chat" className="w-20 h-20 mx-auto mb-4 rounded-xl opacity-80" />
-                <div className="text-xl font-semibold text-primary mb-2">BTC - Chat</div>
+                <img src={logo} alt="BlueChat" className="w-20 h-20 mx-auto mb-4 rounded-xl opacity-80" />
+                <div className="text-xl font-semibold text-primary mb-2">BlueChat</div>
                 <div className="text-sm">Select a chat or search by phone to start messaging.</div>
               </div>
             </div>
