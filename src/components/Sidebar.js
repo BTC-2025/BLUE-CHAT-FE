@@ -35,23 +35,34 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
         const { data } = await axios.get(`${API_BASE}/chats`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        // Merge: keep higher local unread count (may have new messages from socket not yet synced)
+        // Merge: keep higher local unread count
         setChats((prev) => {
           const prevMap = new Map(prev.map(c => [c.id, c]));
-          return data.map(c => {
+          const merged = data.map(c => {
             const local = prevMap.get(c.id);
             return {
               ...c,
               unread: Math.max(c.unread || 0, local?.unread || 0)
             };
           });
+
+          // ✅ AUTO-OPEN CHAT FROM URL
+          if (window.__initialChatId) {
+            const match = merged.find(c => String(c.id) === String(window.__initialChatId));
+            if (match) {
+              onOpenChat(match);
+              window.__initialChatId = null; // Clear it so it doesn't re-open on every mount
+            }
+          }
+
+          return merged;
         });
       } catch (err) {
         console.error("Failed to fetch chats:", err);
       }
     };
     fetchChatsOnce();
-  }, [user]);
+  }, [user, onOpenChat]);
 
   // ✅ AUTO-REFRESH REMOVED for performance. Sockets handle updates.
 

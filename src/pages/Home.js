@@ -24,6 +24,55 @@ export default function Home() {
     callerName: null,
   });
 
+  // ✅ 1. Initialize state from URL/LocalStorage on mount
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === "/status") {
+      setView("status");
+    } else {
+      // Check localStorage for persisted chat
+      const savedChatId = localStorage.getItem("activeChatId");
+      if (savedChatId) {
+        window.__initialChatId = savedChatId;
+      }
+    }
+  }, []);
+
+  // ✅ 2. Sync State -> URL & LocalStorage
+  useEffect(() => {
+    if (view === "status") {
+      if (window.location.pathname !== "/status") {
+        window.history.pushState(null, "", "/status");
+      }
+    } else if (activeChat) {
+      // HIDE ID: Keep URL at / but save to localStorage
+      if (window.location.pathname !== "/") {
+        window.history.pushState(null, "", "/");
+      }
+      localStorage.setItem("activeChatId", activeChat.id);
+    } else {
+      if (window.location.pathname !== "/") {
+        window.history.pushState(null, "", "/");
+      }
+      localStorage.removeItem("activeChatId");
+    }
+  }, [view, activeChat]);
+
+  // ✅ 3. Listen for popstate (browser back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === "/status") {
+        setView("status");
+      } else if (path === "/") {
+        setView("chats");
+        // Don't clear activeChat here as user might be coming back from status
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   useEffect(() => {
     const force = () => setReloadKey(k => k + 1);
     window.addEventListener("chat:reload", force);

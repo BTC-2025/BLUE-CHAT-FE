@@ -3,8 +3,9 @@ import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Home from "./pages/Home.js";
 import DeleteAccount from "./pages/DeleteAccount.js"; // ✅ New Import
-import { useState, useEffect } from "react";
+import PrivacyPolicy from "./pages/PrivacyPolicy.js"; // ✅ New Import
 import logo from "./assets/Blue-Chat.jpeg";
+import { useState,useEffect } from "react";
 
 export default function App() {
   const { user } = useAuth();
@@ -18,9 +19,16 @@ export default function App() {
     return () => window.removeEventListener("popstate", handleLocationChange);
   }, []);
 
-  // ✅ 1. Check for dedicated Delete Account route
+  // ✅ 1. Check for dedicated routes
+  // Allow /status and /chat/:id to fall through to Home
+  const isHomePath = path === "/" || path === "/status" || path.startsWith("/chat/");
+
   if (path === "/delete-account") {
     return <DeleteAccount />;
+  }
+
+  if (path === "/privacy-policy") {
+    return <PrivacyPolicy />;
   }
 
   // ✅ 2. Auth handling
@@ -33,7 +41,7 @@ export default function App() {
             <img
               src={logo}
               alt="BlueChat"
-              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-xl"
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-xl cursor-default"
             />
             <h1 className="text-xl sm:text-2xl font-bold text-primary">BlueChat</h1>
           </div>
@@ -57,6 +65,19 @@ export default function App() {
           </div>
 
           {mode === "login" ? <Login /> : <Register />}
+
+          {/* Privacy Link */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => {
+                window.history.pushState(null, "", "/privacy-policy");
+                window.dispatchEvent(new PopStateEvent("popstate"));
+              }}
+              className="text-primary/60 text-[11px] font-medium hover:text-primary transition-colors underline underline-offset-4"
+            >
+              View Privacy Policy
+            </button>
+          </div>
         </div>
       </div>
     );
