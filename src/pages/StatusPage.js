@@ -162,6 +162,7 @@ export default function StatusPage({ onBack }) {
                     <div className="px-2 py-2 text-white/40 text-[10px] uppercase font-bold tracking-widest mb-1">My Status</div>
                     <div className="flex items-center gap-4 p-4 rounded-2xl transition-all mb-4 bg-white/5 group border border-white/5">
                         <div className="relative cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                            {/* OWNER RING: Always primary if exists, but we can make it green if unviewed by others or just primary */}
                             <div className={`w-12 h-12 rounded-full p-[2px] ${myGroup ? 'bg-primary' : 'bg-white/10'}`}>
                                 <div className="w-full h-full rounded-full border-2 border-black overflow-hidden bg-white/5">
                                     {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{user?.full_name?.[0]}</div>}
@@ -193,19 +194,21 @@ export default function StatusPage({ onBack }) {
                             <div className="px-2 py-2 text-white/40 text-[10px] uppercase font-bold tracking-widest mb-1">Recent Updates</div>
                             {otherGroups.map((g) => {
                                 const globalIdx = statusGroups.findIndex(sg => sg.user._id === g.user._id);
+                                const hasUnviewed = g.statuses.some(s => !s.viewedBy?.some(v => (v._id || v) === user?.id));
+
                                 return (
                                     <div
                                         key={g.user._id}
                                         onClick={() => { setSelectedGroupIdx(globalIdx); setCurrentStatusIdx(0); }}
                                         className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all ${globalIdx === selectedGroupIdx ? 'bg-primary/20 border border-primary/20 shadow-lg' : 'hover:bg-white/5 border border-transparent'}`}
                                     >
-                                        <div className={`w-12 h-12 rounded-full p-[2px] ${globalIdx === selectedGroupIdx ? 'bg-primary' : 'bg-gradient-to-tr from-primary/40 to-secondary/40'}`}>
+                                        <div className={`w-12 h-12 rounded-full p-[2px] transition-colors duration-500 ${hasUnviewed ? 'bg-green-500' : 'bg-white/20'}`}>
                                             <div className="w-full h-full rounded-full border-2 border-black overflow-hidden bg-white/5">
                                                 {g.user.avatar ? <img src={g.user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{g.user.full_name?.[0]}</div>}
                                             </div>
                                         </div>
                                         <div className="flex-1 overflow-hidden">
-                                            <div className="text-white font-bold text-sm truncate">{g.user.full_name}</div>
+                                            <div className={`text-white font-bold text-sm truncate ${hasUnviewed ? 'opacity-100' : 'opacity-60'}`}>{g.user.full_name}</div>
                                             <div className="text-white/40 text-[10px] truncate">
                                                 {new Date(g.statuses[0].createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
