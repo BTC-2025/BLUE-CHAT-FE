@@ -69,80 +69,70 @@ export default function ChatListItem({ item, active, onClick, userId }) {
     <>
       <button
         onClick={onClick}
-        className={`w-full text-left px-3 sm:px-4 py-3 transition-all duration-200 group relative ${active
-          ? "bg-gradient-to-r from-secondary/20 to-secondary/5 border-l-4 border-secondary shadow-sm"
-          : "hover:bg-white/60 border-l-4 border-transparent hover:shadow-sm"
+        className={`w-full text-left px-5 py-4 transition-all duration-300 group relative overflow-hidden ${active
+          ? "bg-white/[0.05] shadow-inner ring-1 ring-white/10"
+          : "hover:bg-white/[0.02]"
           }`}
       >
-        <div className="flex items-center gap-3">
-          {/* Avatar with gradient and online indicator */}
+        {/* Active Indicator Glow */}
+        {active && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
+        )}
+
+        <div className="flex items-center gap-4 relative z-10">
+          {/* Avatar with gradient and premium border */}
           <div
             className="relative flex-shrink-0 cursor-pointer"
             onClick={handleAvatarClick}
           >
-            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full grid place-items-center text-sm font-bold uppercase shadow-md transition-transform group-hover:scale-105 overflow-hidden ${item.isGroup
-              ? "bg-gradient-to-br from-secondary-dark to-secondary text-white"
-              : "bg-gradient-to-br from-primary to-primary-light text-white"
+            <div className={`w-12 h-12 rounded-2xl grid place-items-center text-sm font-black uppercase shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:rotate-3 overflow-hidden border border-white/10 ${item.isGroup
+              ? "bg-gradient-to-br from-[#1e293b] to-[#334155] text-white/90"
+              : "bg-gradient-to-br from-blue-600 to-indigo-700 text-white"
               }`}>
-              {/* Show avatar image if available, otherwise show initial */}
               {!item.isGroup && item.other?.avatar ? (
                 <img src={item.other.avatar} alt="" className="w-full h-full object-cover" />
               ) : (
                 avatarInitial
               )}
             </div>
-            {/* Online indicator */}
+
+            {/* Premium Online Pulse */}
             {isOnline && (
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-sm animate-pulse" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-accent border-4 border-[#040712] rounded-full shadow-lg" />
             )}
           </div>
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 min-w-0">
-                {/* Pin icon with animation */}
-                {isPinned && (
-                  <span className="text-secondary text-xs transition-transform hover:scale-110">📌</span>
-                )}
-                <div className={`font-semibold truncate text-sm sm:text-base transition-colors ${active ? "text-primary" : "text-primary/90 group-hover:text-primary"
+            <div className="flex items-center justify-between gap-2 mb-0.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`font-bold truncate text-[15px] tracking-tight transition-colors ${active ? "text-white" : "text-white/80 group-hover:text-white"
                   }`}>
                   {displayName}
                 </div>
+                {isPinned && (
+                  <svg className="w-3 h-3 text-blue-400 rotate-45" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1.323l3.945 2.035a1 1 0 01.555.894V10a1 1 0 01-1 1H5.5a1 1 0 01-1-1V7.252a1 1 0 01.555-.894L9 4.323V3a1 1 0 011-1z" />
+                  </svg>
+                )}
               </div>
 
-              {/* Time + Pin button */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <span className="text-[10px] sm:text-xs text-primary/50 font-medium">
-                  {item.lastAt ? dayjs(item.lastAt).fromNow(true) : ""}
-                </span>
-                <button
-                  onClick={handlePin}
-                  className={`p-1.5 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 ${isPinned
-                    ? "text-secondary bg-secondary/10 hover:bg-secondary/20"
-                    : "text-primary/30 hover:text-primary/60 hover:bg-primary/5"
-                    }`}
-                  title={isPinned ? "Unpin chat" : "Pin chat"}
-                >
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.5 3.5a1.5 1.5 0 0 0-1.5 1.5v2.75l-2.15-.55a1 1 0 0 0-1.2.76l-.45 2.24a1 1 0 0 0 .76 1.2l3.04.76V16a.5.5 0 0 0 1 0v-3.84l3.04-.76a1 1 0 0 0 .76-1.2l-.45-2.24a1 1 0 0 0-1.2-.76L10 7.75V5a1.5 1.5 0 0 0-1.5-1.5h2z" />
-                  </svg>
-                </button>
-              </div>
+              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest flex-shrink-0">
+                {item.lastAt ? dayjs(item.lastAt).fromNow(true) : ""}
+              </span>
             </div>
 
-            <div className="flex items-center justify-between gap-2 mt-1">
-              {/* Last message preview */}
-              <div className={`text-xs sm:text-sm truncate transition-colors ${item.unread > 0 ? "text-primary/80 font-medium" : "text-primary/50"
+            <div className="flex items-center justify-between gap-3">
+              <div className={`text-sm truncate transition-colors max-w-[80%] ${item.unread > 0 ? "text-white/90 font-bold" : "text-white/40"
                 }`}>
                 {decryptedLast || item.lastMessage || "No messages yet"}
               </div>
 
-              {/* Unread badge with animation */}
+              {/* Sophisticated Unread Badge */}
               {item.unread > 0 && (
-                <span className="text-[10px] sm:text-xs bg-gradient-to-r from-secondary to-secondary-dark text-white px-2 py-0.5 rounded-full flex-shrink-0 font-bold shadow-sm animate-bounce-subtle min-w-[20px] text-center">
+                <div className="bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-md min-w-[18px] text-center shadow-[0_2px_10px_rgba(37,99,235,0.4)]">
                   {item.unread > 99 ? "99+" : item.unread}
-                </span>
+                </div>
               )}
             </div>
           </div>

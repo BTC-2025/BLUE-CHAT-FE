@@ -49,46 +49,43 @@ export default function SearchBar({ onOpen }) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex gap-2">
         <div className="flex-1 relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
-            className="w-full bg-white/90 backdrop-blur-sm border border-background-dark/50 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all duration-200 text-primary placeholder:text-primary/40 shadow-sm"
-            placeholder="Search by phone number..."
+            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all duration-300 text-white placeholder:text-white/20 shadow-inner group"
+            placeholder="Search phones..."
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && search()}
           />
         </div>
         <button
-          className="px-4 py-2.5 bg-white border border-primary/30 hover:bg-background-dark text-primary rounded-xl text-sm font-semibold transition-all duration-200 hover:shadow-md flex items-center gap-1.5"
+          className="px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95"
           onClick={search}
         >
-          <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <span className="hidden sm:inline">Search</span>
+          Go
         </button>
       </div>
 
       {error && <div className="text-xs sm:text-sm text-red-500 animate-fade-in">{error}</div>}
 
       {result && (
-        <div className="p-3 rounded-xl bg-white border border-background-dark/50 flex items-center justify-between gap-3 shadow-card animate-slide-up">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-light grid place-items-center text-sm font-bold text-white shadow-md">
+        <div className="p-4 rounded-2xl glass-card flex items-center justify-between gap-4 animate-premium-in">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 grid place-items-center text-sm font-black text-white shadow-xl">
               {result.full_name?.[0] || "?"}
             </div>
             <div className="min-w-0">
-              <div className="font-semibold text-sm sm:text-base truncate text-primary">{result.full_name || "Unnamed"}</div>
-              <div className="text-xs text-primary/50">{result.phone}</div>
+              <div className="font-bold text-[15px] truncate text-white">{result.full_name || "Unnamed"}</div>
+              <div className="text-[11px] font-bold text-white/40 uppercase tracking-tighter">{result.phone}</div>
             </div>
           </div>
           <button
-            className="px-4 py-2 bg-gradient-to-r from-primary to-primary-light text-white rounded-xl text-sm font-semibold transition-all duration-200 hover:shadow-md flex-shrink-0"
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-lg active:scale-95"
             onClick={openChat}
           >
             Chat

@@ -27,7 +27,7 @@ export default function App() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background grid place-items-center p-4 sm:p-6">
-        <div className="w-full max-w-md bg-white rounded-2xl p-4 sm:p-6 shadow-2xl border border-background-dark">
+        <div className="checking w-full max-w-md bg-white rounded-2xl p-4 sm:p-6 shadow-2xl border border-background-dark">
           {/* Logo */}
           <div className="text-center mb-6">
             <img
