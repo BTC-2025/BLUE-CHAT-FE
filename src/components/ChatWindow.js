@@ -359,6 +359,7 @@ import { useAuth } from "../context/AuthContext.js";
 import MessageBubble from "./MessageBubble.js";
 import ChatInput from "./ChatInput.js";
 import GroupManageModal from "./GroupManageModal";
+import ContactInfoModal from "./ContactInfoModal"; // ✅ Added ContactInfoModal
 import ForwardModal from "./ForwardModal";
 import { encryptMessage } from "../utils/cryptoUtils";
 
@@ -367,6 +368,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
   const [messages, setMessages] = useState([]);
   const scrollerRef = useRef(null);
   const [openManage, setOpenManage] = useState(false);
+  const [openContactInfo, setOpenContactInfo] = useState(false); // ✅ Added state
 
   // ✅ Reply/Forward state
   const [replyTo, setReplyTo] = useState(null);
@@ -722,7 +724,10 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
       <div className="px-4 sm:px-5 py-3.5 bg-gradient-to-r from-primary to-primary-light shadow-header flex justify-between items-center gap-3">
 
         {/* LEFT - Back button + Name */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div
+          className={`flex items-center gap-3 min-w-0 ${!chat.isGroup ? "cursor-pointer group/header" : ""}`}
+          onClick={() => !chat.isGroup && setOpenContactInfo(true)}
+        >
           {/* Back button (mobile only) */}
           {onBack && (
             <button
@@ -742,7 +747,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
               : "bg-gradient-to-br from-secondary to-secondary-light"
               }`}>
               {!chat.isGroup && chat.other?.avatar ? (
-                <img src={chat.other.avatar} alt="" className="w-full h-full object-cover" />
+                <img src={chat.other.avatar} alt="" className="w-full h-full object-cover group-hover/header:scale-110 transition-transform" />
               ) : chat.isGroup
                 ? (chat.title?.[0] || "G")
                 : (chat.other?.full_name?.[0] || chat.other?.phone?.slice(-2))}
@@ -754,7 +759,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
           </div>
 
           <div className="min-w-0">
-            <div className="font-bold text-sm sm:text-base truncate text-white">
+            <div className="font-bold text-sm sm:text-base truncate text-white group-hover/header:text-secondary transition-colors">
               {chat.isGroup ? chat.title : chat.other.full_name || chat.other.phone}
             </div>
 
@@ -934,6 +939,13 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
         chat={chat}
         open={openManage}
         onClose={() => setOpenManage(false)}
+      />
+
+      {/* ✅ Contact Info Modal */}
+      <ContactInfoModal
+        contact={chat.other}
+        open={openContactInfo}
+        onClose={() => setOpenContactInfo(false)}
       />
 
       {/* ✅ Forward Modal */}
