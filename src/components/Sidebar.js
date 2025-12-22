@@ -7,13 +7,14 @@ import { useAuth } from "../context/AuthContext.js";
 import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
 import ProfileModal from "./ProfileModal";
-import logo from "../assets/Blue-Chat.jpeg";
+import NavRail from "./NavRail";
 
 export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
   const { user } = useAuth();
   const [chats, setChats] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState("chats"); // chats, groups, calls, status, settings
 
   const load = async () => {
     try {
@@ -35,7 +36,6 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
         const { data } = await axios.get(`${API_BASE}/chats`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        // Merge: keep higher local unread count
         setChats((prev) => {
           const prevMap = new Map(prev.map(c => [c.id, c]));
           const merged = data.map(c => {
@@ -46,15 +46,13 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
             };
           });
 
-          // ✅ AUTO-OPEN CHAT FROM URL
           if (window.__initialChatId) {
             const match = merged.find(c => String(c.id) === String(window.__initialChatId));
             if (match) {
               onOpenChat(match);
-              window.__initialChatId = null; // Clear it so it doesn't re-open on every mount
+              window.__initialChatId = null;
             }
           }
-
           return merged;
         });
       } catch (err) {
@@ -64,9 +62,6 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
     fetchChatsOnce();
   }, [user, onOpenChat]);
 
-  // ✅ AUTO-REFRESH REMOVED for performance. Sockets handle updates.
-
-  // ✅ Listen for new messages to update sidebar in real-time
   useEffect(() => {
     const onNewMessage = (msg) => {
       setChats((prev) => {
@@ -76,8 +71,8 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
               ...c,
               lastMessage: msg.body || (msg.attachments?.length ? "[attachment]" : ""),
               lastAt: msg.createdAt,
-              lastEncryptedBody: msg.encryptedBody || null, // ✅ Real-time update
-              lastEncryptedKeys: msg.encryptedKeys || [],   // ✅ Real-time update
+              lastEncryptedBody: msg.encryptedBody || null,
+              lastEncryptedKeys: msg.encryptedKeys || [],
               unread: (String(msg.sender) !== String(user?.id) && String(msg.sender?._id) !== String(user?.id))
                 ? (c.unread || 0) + 1
                 : c.unread
@@ -93,12 +88,10 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
     return () => socket.off("message:new", onNewMessage);
   }, [user?.id]);
 
-  // ✅ Unread badge reset
   useEffect(() => {
     const onUnreadReset = ({ chatId, unreadResetFor }) => {
       if (!user) return;
       if (unreadResetFor !== user.id) return;
-
       setChats((prev) =>
         prev.map((c) => (c.id === chatId ? { ...c, unread: 0 } : c))
       );
@@ -108,7 +101,6 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
     return () => socket.off("chats:update", onUnreadReset);
   }, [user]);
 
-  // ✅ Listen for pin/unpin events
   useEffect(() => {
     const onChatPinned = ({ chatId }) => {
       setChats((prev) => {
@@ -136,110 +128,153 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
     };
   }, [user?.id]);
 
-  // ✅ Sort function: pinned first, then by lastAt
   const sortChats = (chatList, userId) => {
     return [...chatList].sort((a, b) => {
       const aIsPinned = a.isPinned || a.pinnedBy?.includes(userId);
       const bIsPinned = b.isPinned || b.pinnedBy?.includes(userId);
-
       if (aIsPinned && !bIsPinned) return -1;
       if (!aIsPinned && bIsPinned) return 1;
       return new Date(b.lastAt) - new Date(a.lastAt);
     });
   };
 
-  return (
-    <div className="flex flex-col h-full bg-[#040712] text-white animate-premium-in">
+  const filteredChats = chats.filter(c => {
+    if (activeTab === "groups") return c.isGroup;
+    if (activeTab === "chats") return !c.isGroup;
+    return true; // fallback for others
+  });
 
-      {/* ✅ Brand Header - Ultra Premium Glassmorphism */}
-      <div className="px-5 py-5 glass-panel sticky top-0 z-30 flex justify-between items-center shadow-2xl">
-        <div className="flex items-center gap-4">
-          {/* Profile Button with Glow */}
-          <button
-            onClick={() => setOpenProfile(true)}
-            className="relative group transition-transform active:scale-95"
-          >
-            <div className="w-12 h-12 rounded-2xl shadow-2xl ring-2 ring-white/10 overflow-hidden bg-white/5 group-hover:ring-white/30 transition-all duration-300">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <img src={logo} alt="BlueChat" className="w-full h-full object-cover" />
-              )}
+  const renderContent = () => {
+    if (activeTab === "settings") {
+      return (
+        <div className="flex-1 p-6 space-y-6">
+          <h2 className="text-2xl font-bold mb-4">Settings</h2>
+          <div className="space-y-4">
+            <button
+              onClick={() => setOpenProfile(true)}
+              className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all"
+            >
+              <span>Account Information</span>
+              <svg className="w-5 h-5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+            </button>
+            <div className="p-4 bg-white/5 rounded-2xl space-y-3">
+              <div className="flex justify-between items-center opacity-70">
+                <span>Theme</span>
+                <span className="text-primary font-bold">Premium Dark</span>
+              </div>
+              <div className="flex justify-between items-center opacity-70">
+                <span>Encrypted Chats</span>
+                <span className="text-emerald-400 font-bold">Enabled</span>
+              </div>
             </div>
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-accent rounded-full border-[3px] border-[#040712] shadow-sm" />
-          </button>
-
-          <div className="flex flex-col">
-            <h1 className="font-black text-xl tracking-tight text-white/95">BlueChat</h1>
-            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">{user?.full_name || user?.phone}</span>
           </div>
         </div>
+      );
+    }
 
-        <div className="flex items-center gap-2.5">
-          {/* New Premium Status Button */}
-          <button
-            onClick={onViewStatus}
-            className="flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white rounded-xl transition-all duration-300 border border-white/5 hover:border-white/20 group"
-            title="View Status"
-          >
-            <svg className="w-5 h-5 group-hover:rotate-[15deg] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+    if (activeTab === "calls") {
+      return (
+        <div className="flex-1 p-6 flex flex-col items-center justify-center text-center opacity-50">
+          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+          </div>
+          <h3 className="text-lg font-semibold">No Call logs found</h3>
+          <p className="text-sm">Start a call from any chat to see it here.</p>
+        </div>
+      );
+    }
 
-          {/* New Premium Group Button */}
-          <button
-            onClick={() => setOpenCreate(true)}
-            className="flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white rounded-xl transition-all duration-300 border border-white/5 hover:border-white/20 group"
-            title="New Group"
-          >
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
+    // Filter online users (only for 1:1 chats)
+    const onlineUsers = chats
+      .filter(c => !c.isGroup && c.other?.isOnline)
+      .map(c => c.other);
+
+    return (
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header Area */}
+        <div className="px-5 pt-6 pb-2">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-black">{activeTab === 'groups' ? 'Groups' : 'Chats'}</h2>
+            {activeTab === 'groups' && (
+              <button onClick={() => setOpenCreate(true)} className="w-8 h-8 flex items-center justify-center bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" /></svg>
+              </button>
+            )}
+          </div>
+          <SearchBar onOpen={async (chat) => { onOpenChat(chat); await load(); }} />
+        </div>
+
+        {/* Online Section (Horizontal Scroll) */}
+        {activeTab === "chats" && onlineUsers.length > 0 && (
+          <div className="px-5 py-4">
+            <div className="text-[11px] font-bold text-primary tracking-widest uppercase mb-3 opacity-60">Online</div>
+            <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar no-scrollbar">
+              {onlineUsers.map((u) => (
+                <button
+                  key={u.id}
+                  onClick={() => onOpenChat(chats.find(c => !c.isGroup && c.other.id === u.id))}
+                  className="flex-shrink-0 relative group"
+                >
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-all">
+                    {u.avatar ? (
+                      <img src={u.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+                        {u.full_name?.[0] || '?'}
+                      </div>
+                    )}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-accent border-[3px] border-[#040712] rounded-full" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* List Container */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar pt-2">
+          {activeTab === "chats" && (
+            <div className="px-5 mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-white/30 tracking-tight">
+                Sort by <span className="text-primary">Newest</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+              </div>
+            </div>
+          )}
+          <ChatList
+            items={sortChats(filteredChats, user?.id)}
+            activeId={activeChatId}
+            userId={user?.id}
+            onOpen={(chat) => {
+              onOpenChat(chat);
+              setChats((prev) => prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c)));
+            }}
+          />
         </div>
       </div>
+    );
+  };
 
-      {/* Profile Modal */}
-      <ProfileModal open={openProfile} onClose={() => setOpenProfile(false)} />
-
-      {/* ✅ Search Area - Modern & Integrated */}
-      <div className="px-5 py-4 z-20">
-        <SearchBar
-          onOpen={async (chat) => {
-            onOpenChat(chat);
-            setChats((prev) =>
-              prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c))
-            );
-            await load();
-          }}
-        />
-      </div>
-
-      {/* ✅ Chat List Container */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <ChatList
-          items={sortChats(chats, user?.id)}
-          activeId={activeChatId}
-          userId={user?.id}
-          onOpen={(chat) => {
-            onOpenChat(chat);
-            setChats((prev) =>
-              prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c))
-            );
-          }}
-        />
-      </div>
-
-      {/* ✅ Group Create Modal */}
-      <GroupCreateModal
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        onCreated={async () => {
-          setOpenCreate(false);
-          await load();
+  return (
+    <div className="flex flex-col-reverse md:flex-row h-full bg-[#040712] overflow-hidden">
+      <NavRail
+        activeTab={activeTab}
+        onTabChange={(id) => {
+          if (id === 'status') {
+            onViewStatus();
+          } else {
+            setActiveTab(id);
+          }
         }}
+        onOpenProfile={() => setOpenProfile(true)}
       />
+
+      <div className="flex-1 flex flex-col h-full overflow-hidden pb-[64px] md:pb-0">
+        {renderContent()}
+      </div>
+
+      <ProfileModal open={openProfile} onClose={() => setOpenProfile(false)} />
+      <GroupCreateModal open={openCreate} onClose={() => setOpenCreate(false)} onCreated={async () => { setOpenCreate(false); await load(); }} />
     </div>
   );
 }

@@ -100,7 +100,22 @@ export default function ProfileModal({ open, onClose }) {
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="bg-gradient-to-r from-primary to-primary-light p-6 text-center">
+                <div className="bg-gradient-to-r from-primary to-primary-light p-6 text-center relative">
+                    {/* Logout Button */}
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Are you sure you want to logout?")) {
+                                logout();
+                                window.location.href = "/"; // Force refresh and redirect to login
+                            }
+                        }}
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all group"
+                        title="Logout from BlueChat"
+                    >
+                        <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
                     {/* Avatar */}
                     <div className="relative inline-block">
                         <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white mx-auto">
