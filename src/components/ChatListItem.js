@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext";
 import { decryptMessage } from "../utils/cryptoUtils";
-import axios from "axios";
-import { API_BASE } from "../api";
 dayjs.extend(relativeTime);
 
 export default function ChatListItem({ item, active, onClick, userId }) {

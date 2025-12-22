@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { api, setAuth } from "../api";
+import { socket } from "../socket";
 import { generateKeyPair, exportKey, importKey } from "../utils/cryptoUtils";
 
 const AuthCtx = createContext(null);
@@ -54,6 +55,38 @@ export default function AuthProvider({ children }) {
     };
     init();
   }, []);
+
+  // ✅ Real-time account disabling listener
+  useEffect(() => {
+    if (!user) return;
+
+    const handleDisable = () => {
+      setUser(prev => {
+        if (!prev) return null;
+        const updated = { ...prev, isDisabled: true };
+        localStorage.setItem("auth_user", JSON.stringify(updated));
+        return updated;
+      });
+    };
+
+    socket.on("account:disabled", handleDisable);
+
+    // Global interceptor to catch 403s from the middleware
+    const interceptor = api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 403 && error.response?.data?.message?.includes("Account disabled")) {
+          handleDisable();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      socket.off("account:disabled", handleDisable);
+      api.interceptors.response.eject(interceptor);
+    };
+  }, [user?.id]);
 
   const login = async (phone, password) => {
     const { data } = await api.post("/auth/login", { phone, password });

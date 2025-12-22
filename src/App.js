@@ -4,8 +4,9 @@ import Register from "./pages/Register.js";
 import Home from "./pages/Home.js";
 import DeleteAccount from "./pages/DeleteAccount.js"; // ✅ New Import
 import PrivacyPolicy from "./pages/PrivacyPolicy.js"; // ✅ New Import
+import DisabledAccount from "./components/DisabledAccount.js"; // ✅ New Import
 import logo from "./assets/Blue-Chat.jpeg";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export default function App() {
   const { user } = useAuth();
@@ -19,9 +20,12 @@ export default function App() {
     return () => window.removeEventListener("popstate", handleLocationChange);
   }, []);
 
+  // ✅ 0. Check if account is disabled
+  if (user?.isDisabled) {
+    return <DisabledAccount />;
+  }
+
   // ✅ 1. Check for dedicated routes
-  // Allow /status and /chat/:id to fall through to Home
-  const isHomePath = path === "/" || path === "/status" || path.startsWith("/chat/");
 
   if (path === "/delete-account") {
     return <DeleteAccount />;
