@@ -478,10 +478,15 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
       // ✅ IMPORTANT: Only add message if it belongs to THIS chat
       if (m.chat !== chat.id) return;
 
-      // ✅ Prevent duplicate messages by checking if message already exists
       setMessages((prev) => {
-        const exists = prev.some(msg => msg._id === m._id);
-        if (exists) return prev;
+        // If message exists, replace it (to update isReleased, status, etc)
+        const idx = prev.findIndex(msg => msg._id === m._id);
+        if (idx !== -1) {
+          const updated = [...prev];
+          updated[idx] = { ...m, currentUserId: user.id };
+          return updated;
+        }
+        // Otherwise append new
         return [...prev, { ...m, currentUserId: user.id }];
       });
     };
