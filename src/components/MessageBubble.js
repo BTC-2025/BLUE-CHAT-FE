@@ -248,6 +248,17 @@ export default function MessageBubble({ message, mine, isGroup, isAdmin, onReply
     if (isDeleted) return null;
     if (!mine) return null;
 
+    // ✅ If NOT released (scheduled), show a pulsing clock icon
+    if (message.isReleased === false) {
+      return (
+        <span title="Scheduled" className="text-white/60 animate-pulse ml-1">
+          <svg className="w-3 h-3 inline pb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </span>
+      );
+    }
+
     if (message.status === "seen") return <span className="text-blue-400">✔✔</span>;
     if (message.status === "delivered") return <span className="text-gray-300">✔✔</span>;
     return <span className="text-gray-300">✔</span>;
