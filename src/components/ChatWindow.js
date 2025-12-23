@@ -577,7 +577,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                     <div className="absolute right-0 top-12 w-48 glass-card bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[1010] py-2 animate-premium-in">
                       <button
                         onClick={handleArchive}
-                        className="w-full px-4 py-3 text-left text-sm font-medium text-black hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                        className="w-full px-4 py-3 text-left text-sm font-medium text-white hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -587,7 +587,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
 
                       <button
                         onClick={handleClearChat}
-                        className="w-full px-4 py-3 text-left text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                        className="w-full px-4 py-3 text-left text-sm font-medium text-white hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
