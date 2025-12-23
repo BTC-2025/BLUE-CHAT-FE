@@ -8,6 +8,7 @@ import { socket } from "../socket";
 import GroupCreateModal from "./GroupCreateModal";
 import JoinGroupModal from "./JoinGroupModal";
 import ProfileModal from "./ProfileModal";
+import BlockedList from "./BlockedList"; // ✅ Added
 import NavRail from "./NavRail";
 
 export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
@@ -221,6 +222,10 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
           <p className="text-sm">Start a call from any chat to see it here.</p>
         </div>
       );
+    }
+
+    if (activeTab === "blocked") {
+      return <BlockedList />;
     }
 
     // Filter online users (only for 1:1 chats)

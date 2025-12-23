@@ -11,6 +11,7 @@ export default function NavRail({ activeTab, onTabChange, onOpenProfile }) {
         { id: 'archived', icon: '📥', label: 'Archived' },
         { id: 'calls', icon: '📞', label: 'Calls' },
         { id: 'status', icon: '🕒', label: 'Status' },
+        { id: 'blocked', icon: '🚫', label: 'Blocked' }, // ✅ Added
         { id: 'settings', icon: '⚙️', label: 'Settings' },
     ];
 
@@ -71,6 +72,11 @@ export default function NavRail({ activeTab, onTabChange, onOpenProfile }) {
                             {tab.id === 'status' && (
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            )}
+                            {tab.id === 'blocked' && (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                 </svg>
                             )}
                             {tab.id === 'settings' && (
