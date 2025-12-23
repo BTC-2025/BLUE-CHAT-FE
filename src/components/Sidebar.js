@@ -243,6 +243,37 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
                 </button>
               </div>
             </div>
+
+            <div className="p-4 bg-white/5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-emerald-400">Disappearing Messages</div>
+                  <div className="text-[10px] opacity-40 uppercase tracking-widest font-black">Personal retention policy</div>
+                </div>
+                <select
+                  value={user?.messageRetentionDays || 0}
+                  onChange={async (e) => {
+                    const days = parseInt(e.target.value);
+                    try {
+                      await axios.patch(`${API_BASE}/users/retention`, { days }, {
+                        headers: { Authorization: `Bearer ${user.token}` }
+                      });
+                      // Update local user state if possible, or just refresh
+                      window.location.reload(); // Quickest way to sync AuthContext user
+                    } catch (err) {
+                      alert("Failed to update retention policy");
+                    }
+                  }}
+                  className="bg-[#0f172a] text-xs font-bold py-1 px-2 rounded-lg border border-white/10 outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value={0}>Off</option>
+                  <option value={1}>24 Hours</option>
+                  <option value={7}>7 Days</option>
+                  <option value={30}>30 Days</option>
+                </select>
+              </div>
+            </div>
+
             <div className="p-4 bg-white/5 rounded-2xl space-y-3">
               <div className="flex justify-between items-center opacity-70">
                 <span>Theme</span>

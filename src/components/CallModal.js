@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { socket } from "../socket";
+import { stopRingtone } from "../utils/notificationHelper";
 
 const ICE_SERVERS = {
     iceServers: [
@@ -191,6 +192,7 @@ export default function CallModal({ callState, onClose, userId }) {
 
     // Accept incoming call
     const handleAcceptCall = async () => {
+        stopRingtone(); // ✅ Stop ringtone when answering
         setCallStatus("connecting");
         socket.emit("call:accept", { callerId });
         await initializeCall(false);

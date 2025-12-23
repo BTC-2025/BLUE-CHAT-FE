@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext.js";
 import logo from "../assets/Blue-Chat.jpeg";
-import { playNotificationSound } from "../utils/notificationHelper";
+import { playNotificationSound, playRingtone, stopRingtone } from "../utils/notificationHelper";
 
 export default function Home() {
   const { user } = useAuth();
@@ -83,6 +83,12 @@ export default function Home() {
   // ✅ Listen for incoming calls
   useEffect(() => {
     const handleIncomingCall = ({ callerId, callerName, callerAvatar, callType }) => {
+      // Play ringtone if sound is enabled
+      const settings = JSON.parse(localStorage.getItem("notificationSettings") || '{"sound":true}');
+      if (settings.sound) {
+        playRingtone();
+      }
+
       setCallState({
         isOpen: true,
         callType,
@@ -95,7 +101,10 @@ export default function Home() {
     };
 
     socket.on("call:incoming", handleIncomingCall);
-    return () => socket.off("call:incoming", handleIncomingCall);
+    return () => {
+      socket.off("call:incoming", handleIncomingCall);
+      stopRingtone(); // Cleanup ringtone on unmount
+    };
   }, []);
 
   // ✅ Listen for incoming messages for sound/notifications
@@ -154,6 +163,7 @@ export default function Home() {
 
   // ✅ Close call modal
   const handleCloseCall = () => {
+    stopRingtone(); // ✅ Stop ringtone when closing
     setCallState({
       isOpen: false,
       callType: null,
