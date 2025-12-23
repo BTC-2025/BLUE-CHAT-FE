@@ -12,7 +12,7 @@ export default function CallHistory({ onStartCall }) {
 
     const fetchCalls = async () => {
         try {
-            const { data } = await axios.get(`${API_BASE}/calls/`, {
+            const { data } = await axios.get(`${API_BASE}/calls/get-calls`, {
                 headers: { Authorization: `Bearer ${user?.token}` }
             });
             setCalls(data);
