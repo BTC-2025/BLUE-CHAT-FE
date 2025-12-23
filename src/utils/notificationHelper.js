@@ -66,11 +66,34 @@ export const unsubscribeFromNotifications = async (userToken) => {
 
 export const playNotificationSound = () => {
     console.log("🔔 Attempting to play notification sound...");
-    const audio = new Audio("/notification.mp3");
+    const audio = new Audio("/notification-3.mp3");
     audio.play()
         .then(() => console.log("🔊 Notification sound played successfully"))
         .catch(err => {
             console.error("❌ Failed to play notification sound:", err.message);
             console.log("💡 Tip: Most browsers require a user interaction (click/tap) before playing sound.");
         });
+};
+
+let ringtoneAudio = null;
+
+export const playRingtone = () => {
+    if (ringtoneAudio) return;
+
+    console.log("☎️ Playing ringtone...");
+    ringtoneAudio = new Audio("/ringtone.mp3");
+    ringtoneAudio.loop = true;
+    ringtoneAudio.play().catch(err => {
+        console.error("❌ Failed to play ringtone:", err.message);
+    });
+};
+
+export const stopRingtone = () => {
+    if (ringtoneAudio) {
+        console.log("📵 Stopping ringtone...");
+        ringtoneAudio.pause();
+        ringtoneAudio.currentTime = 0;
+        ringtoneAudio.remove();
+        ringtoneAudio = null;
+    }
 };
