@@ -9,6 +9,7 @@ import GroupCreateModal from "./GroupCreateModal";
 import JoinGroupModal from "./JoinGroupModal";
 import ProfileModal from "./ProfileModal";
 import BlockedList from "./BlockedList"; // ✅ Added
+import CallHistory from "./CallHistory"; // ✅ Added
 import NavRail from "./NavRail";
 
 export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
@@ -214,13 +215,15 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
 
     if (activeTab === "calls") {
       return (
-        <div className="flex-1 p-6 flex flex-col items-center justify-center text-center opacity-50">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-          </div>
-          <h3 className="text-lg font-semibold">No Call logs found</h3>
-          <p className="text-sm">Start a call from any chat to see it here.</p>
-        </div>
+        <CallHistory onStartCall={(peerId, type) => {
+          // Find the chat for this peer and trigger the call
+          const chat = chats.find(c => !c.isGroup && c.other?.id === peerId);
+          if (chat) {
+            onOpenChat(chat);
+            // We might need a way to trigger the call directly from Sidebar
+            // For now, opening the chat is a good start as it shows the call buttons
+          }
+        }} />
       );
     }
 
