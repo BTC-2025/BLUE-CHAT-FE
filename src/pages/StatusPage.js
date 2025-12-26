@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { API_BASE } from "../api"; // ✅ Import dynamic base URL
+import { API_BASE } from "../api";
+import StatusPrivacyModal from "../components/StatusPrivacyModal";
 
 export default function StatusPage({ onBack }) {
     const { user } = useAuth();
@@ -13,6 +14,8 @@ export default function StatusPage({ onBack }) {
     const fileInputRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [showViewers, setShowViewers] = useState(false);
+    const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
+    const [pendingFile, setPendingFile] = useState(null);
 
     const fetchStatuses = async () => {
         try {
@@ -93,21 +96,38 @@ export default function StatusPage({ onBack }) {
         }
     };
 
-    const handleUpload = async (e) => {
+    const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        setPendingFile(file);
+        setPrivacyModalOpen(true);
+        // Reset input so same file can be selected again if needed
+        e.target.value = "";
+    };
+
+    const handleConfirmPrivacy = async (visibleTo) => {
+        setPrivacyModalOpen(false);
+        if (!pendingFile) return;
+
         setUploading(true);
         try {
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append("file", pendingFile);
             const uploadRes = await axios.post(`${API_BASE}/upload`, formData, {
                 headers: { Authorization: `Bearer ${user?.token}`, "Content-Type": "multipart/form-data" }
             });
+
             await axios.post(`${API_BASE}/status`,
-                { content: uploadRes.data.url, type: "image" },
+                {
+                    content: uploadRes.data.url,
+                    type: "image",
+                    visibleTo: visibleTo // ✅ Pass the privacy list
+                },
                 { headers: { Authorization: `Bearer ${user?.token}` } }
             );
+
             await fetchStatuses();
+            setPendingFile(null);
         } catch (err) {
             console.error("Upload failed:", err);
             alert("Failed to upload status.");
@@ -376,7 +396,13 @@ export default function StatusPage({ onBack }) {
                 )}
             </div>
 
-            <input type="file" hidden ref={fileInputRef} onChange={handleUpload} accept="image/*" />
+            <input type="file" hidden ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
+
+            <StatusPrivacyModal
+                isOpen={privacyModalOpen}
+                onClose={() => { setPrivacyModalOpen(false); setPendingFile(null); }}
+                onConfirm={handleConfirmPrivacy}
+            />
 
             {uploading && (
                 <div className="absolute inset-0 bg-black/80 z-[200] flex flex-col items-center justify-center backdrop-blur-xl">
