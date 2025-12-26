@@ -95,6 +95,21 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
     }
   };
 
+  const handleReportGroup = async () => {
+    setShowMenu(false);
+    if (!window.confirm("Report this group? You will be automatically removed from it.")) return;
+    try {
+      await axios.post(`${API_BASE}/groups/${chat.id}/report`, {}, {
+        headers: { Authorization: `Bearer ${user?.token}` }
+      });
+      onBack?.();
+      window.dispatchEvent(new CustomEvent("chats:refresh"));
+    } catch (e) {
+      console.error("Report group failed:", e);
+      alert(e.response?.data?.message || "Failed to report group");
+    }
+  };
+
   const load = useCallback(async () => {
     try {
       const { data } = await axios.get(
@@ -468,8 +483,8 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                   ? "bg-gradient-to-br from-secondary-dark to-secondary"
                   : "bg-gradient-to-br from-secondary to-secondary-light"
                   }`}>
-                  {!chat.isGroup && chat.other?.avatar ? (
-                    <img src={chat.other.avatar} alt="" className="w-full h-full object-cover group-hover/header:scale-110 transition-transform" />
+                  {(chat.isGroup ? chat.avatar : chat.other?.avatar) ? (
+                    <img src={chat.isGroup ? chat.avatar : chat.other.avatar} alt="" className="w-full h-full object-cover group-hover/header:scale-110 transition-transform" />
                   ) : chat.isGroup
                     ? (chat.title?.[0] || "G")
                     : (chat.other?.full_name?.[0] || chat.other?.phone?.slice(-2))}
@@ -608,6 +623,18 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
                           Report Account
+                        </button>
+                      )}
+
+                      {chat.isGroup && (
+                        <button
+                          onClick={handleReportGroup}
+                          className="w-full px-4 py-3 text-left text-sm font-medium text-orange-400/70 hover:text-orange-400 hover:bg-orange-500/5 transition-colors flex items-center gap-3"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          Report Group
                         </button>
                       )}
 

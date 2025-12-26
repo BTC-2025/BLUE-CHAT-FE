@@ -72,8 +72,8 @@ export default function ChatListItem({ item, active, onClick, userId }) {
                 ? "bg-gradient-to-br from-[#1e293b] to-[#334155] text-white/90"
                 : "bg-gradient-to-br from-blue-600 to-indigo-700 text-white"
                 }`}>
-                {!item.isGroup && item.other?.avatar ? (
-                  <img src={item.other.avatar} alt="" className="w-full h-full object-cover" />
+                {(item.isGroup ? item.avatar : item.other?.avatar) ? (
+                  <img src={item.isGroup ? item.avatar : item.other.avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
                   avatarInitial
                 )}

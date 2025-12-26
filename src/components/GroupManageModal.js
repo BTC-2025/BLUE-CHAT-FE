@@ -10,6 +10,8 @@ export default function GroupManageModal({ chat, open, onClose }) {
   const [group, setGroup] = useState(null);
   const [phone, setPhone] = useState("");
   const [meta, setMeta] = useState({ title: "", description: "" });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -115,16 +117,34 @@ export default function GroupManageModal({ chat, open, onClose }) {
 
   const saveMeta = async () => {
     try {
+      let avatarUrl = group.avatar;
+
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("file", avatarFile);
+        const { data: uploadRes } = await axios.post(`${API_BASE}/upload`, formData, {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        avatarUrl = uploadRes.url;
+      }
+
       await axios.patch(
         `${API_BASE}/groups/${chatId}`,
-        meta,
+        { ...meta, avatar: avatarUrl },
         {
           headers: { Authorization: `Bearer ${user?.token}` },
         }
       );
+      setAvatarFile(null);
+      setAvatarPreview(null);
       load();
+      // Ensure sidebar and chat window see the update
+      window.dispatchEvent(new CustomEvent("chats:refresh"));
     } catch (e) {
-      alert(e.response?.data?.message);
+      alert(e.response?.data?.message || "Failed to save group info");
     }
   };
 
@@ -177,6 +197,33 @@ export default function GroupManageModal({ chat, open, onClose }) {
         <div className="flex justify-between items-center mb-3">
           <div className="text-lg font-semibold text-primary">Group Info</div>
           <button onClick={onClose} className="text-primary/40 hover:text-primary transition-colors">✕</button>
+        </div>
+
+        {/* AVATAR */}
+        <div className="flex flex-col items-center mb-6 gap-3">
+          <label className={`relative ${isAdmin ? 'cursor-pointer' : ''} group`}>
+            <div className="w-24 h-24 rounded-3xl bg-background-dark border border-background-dark flex items-center justify-center overflow-hidden transition-all group-hover:ring-2 group-hover:ring-secondary/50 shadow-lg">
+              {avatarPreview || group.avatar ? (
+                <img src={avatarPreview || group.avatar} alt="Group" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-3xl font-black text-primary/20 uppercase">{group.title?.[0] || "?"}</div>
+              )}
+              {isAdmin && (
+                <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-3xl">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {isAdmin && <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                setAvatarFile(file);
+                setAvatarPreview(URL.createObjectURL(file));
+              }
+            }} />}
+          </label>
         </div>
 
         {/* META */}
@@ -282,12 +329,21 @@ export default function GroupManageModal({ chat, open, onClose }) {
                 key={m.id}
                 className="flex items-center justify-between bg-background border border-background-dark px-3 py-2 rounded-lg"
               >
-                <div className="min-w-0">
-                  <div className="text-sm sm:text-base font-semibold truncate text-primary flex items-center gap-2">
-                    {m.name || m.phone}
-                    {isMAdmin && <span className="text-[10px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded border border-emerald-500/20">Admin</span>}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-background-dark overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    {m.avatar ? (
+                      <img src={m.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs font-bold text-primary/40 uppercase">{m.name?.[0] || m.phone?.[0]}</span>
+                    )}
                   </div>
-                  <div className="text-xs text-primary/60">{m.phone}</div>
+                  <div className="min-w-0 text-left">
+                    <div className="text-sm font-semibold truncate text-primary flex items-center gap-2">
+                      {m.name || m.phone}
+                      {isMAdmin && <span className="text-[10px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded border border-emerald-500/20">Admin</span>}
+                    </div>
+                    <div className="text-xs text-primary/60">{m.phone}</div>
+                  </div>
                 </div>
 
                 {isAdmin && m.id !== user.id && (

@@ -105,6 +105,8 @@ export default function GroupCreateModal({ open, onClose, onCreated }) {
   const [description, setDescription] = useState("");
   const [contacts, setContacts] = useState([]); // List of contacts from existing chats
   const [selectedMembers, setSelectedMembers] = useState([]); // Selected user IDs
+  const [avatar, setAvatar] = useState(null); // File object
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingContacts, setLoadingContacts] = useState(false);
 
@@ -154,8 +156,18 @@ export default function GroupCreateModal({ open, onClose, onCreated }) {
       setTitle("");
       setDescription("");
       setSelectedMembers([]);
+      setAvatar(null);
+      setAvatarPreview(null);
     }
   }, [open]);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
   if (!open) return null;
 
@@ -175,41 +187,84 @@ export default function GroupCreateModal({ open, onClose, onCreated }) {
       .filter((c) => selectedMembers.includes(c.id))
       .map((c) => c.phone);
 
-    // ✅ Set timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      setLoading(false);
-      alert("Group creation timed out. Please try again.");
-    }, 15000);
-
-    // ✅ Emit socket event with proper callback handling
-    socket.emit(
-      "group:create",
-      {
-        title,
-        description,
-        participants: phones,
-      },
-      (response) => {
-        clearTimeout(timeout);
-        setLoading(false);
-
-        if (response?.success) {
-          setTitle("");
-          setDescription("");
-          setSelectedMembers([]);
-          if (onCreated) onCreated();
-          onClose();
-        } else {
-          alert(response?.error || "Failed to create group. Please try again.");
+    const proceed = async () => {
+      let avatarUrl = "";
+      if (avatar) {
+        try {
+          const formData = new FormData();
+          formData.append("file", avatar);
+          const { data } = await axios.post(`${API_BASE}/upload`, formData, {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          avatarUrl = data.url;
+        } catch (err) {
+          console.error("Avatar upload failed:", err);
+          setLoading(false);
+          return alert("Avatar upload failed. Proceeding without it?");
         }
       }
-    );
+
+      // ✅ Emit socket event with proper callback handling
+      socket.emit(
+        "group:create",
+        {
+          title,
+          description,
+          participants: phones,
+          avatar: avatarUrl,
+        },
+        (response) => {
+          clearTimeout(timeout);
+          setLoading(false);
+
+          if (response?.success) {
+            setTitle("");
+            setDescription("");
+            setSelectedMembers([]);
+            setAvatar(null);
+            setAvatarPreview(null);
+            if (onCreated) onCreated();
+            onClose();
+          } else {
+            alert(response?.error || "Failed to create group. Please try again.");
+          }
+        }
+      );
+    };
+
+    proceed();
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="bg-white w-full max-w-md rounded-xl p-4 sm:p-5 border border-background-dark max-h-[90vh] overflow-hidden flex flex-col shadow-xl">
         <h2 className="text-lg sm:text-xl font-semibold mb-4 text-primary">Create Group</h2>
+
+        {/* ✅ Avatar Selection */}
+        <div className="flex flex-col items-center mb-5 gap-3">
+          <label className="relative cursor-pointer group">
+            <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl border-2 border-dashed border-primary/20 flex items-center justify-center overflow-hidden transition-all group-hover:border-secondary shadow-lg ${avatarPreview ? 'border-solid' : ''}`}>
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Group" className="w-full h-full object-cover" />
+              ) : (
+                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-primary/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              )}
+              <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-3xl">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+            </div>
+            <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+          </label>
+          <div className="text-[10px] sm:text-xs font-bold text-primary/40 uppercase tracking-widest">Tap to upload group image</div>
+        </div>
 
         <input
           value={title}
