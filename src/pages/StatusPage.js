@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { API_BASE } from "../api";
@@ -17,7 +17,7 @@ export default function StatusPage({ onBack }) {
     const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
     const [pendingFile, setPendingFile] = useState(null);
 
-    const fetchStatuses = async () => {
+    const fetchStatuses = useCallback(async () => {
         try {
             const { data } = await axios.get(`${API_BASE}/status`, {
                 headers: { Authorization: `Bearer ${user?.token}` }
@@ -28,11 +28,11 @@ export default function StatusPage({ onBack }) {
             console.error("Failed to fetch statuses:", err);
             setLoading(false);
         }
-    };
+    }, [user?.token]);
 
     useEffect(() => {
         if (user?.token) fetchStatuses();
-    }, [user?.token]);
+    }, [user?.token, fetchStatuses]);
 
     const myGroup = statusGroups.find(g => g.user._id === user?.id);
     const otherGroups = statusGroups.filter(g => g.user._id !== user?.id);
@@ -40,6 +40,19 @@ export default function StatusPage({ onBack }) {
     const currentGroup = selectedGroupIdx !== null ? statusGroups[selectedGroupIdx] : null;
     const currentStatus = currentGroup?.statuses?.[currentStatusIdx];
     const isMine = currentGroup?.user?._id === user?.id;
+
+    const handleNext = useCallback(() => {
+        if (!currentGroup) return;
+        if (currentStatusIdx < currentGroup.statuses.length - 1) {
+            setCurrentStatusIdx(currentStatusIdx + 1);
+        } else if (selectedGroupIdx < statusGroups.length - 1) {
+            const nextIdx = selectedGroupIdx + 1;
+            setSelectedGroupIdx(nextIdx);
+            setCurrentStatusIdx(0);
+        } else {
+            setSelectedGroupIdx(null);
+        }
+    }, [currentGroup, currentStatusIdx, selectedGroupIdx, statusGroups.length]);
 
     // Progress bar and auto-advance
     useEffect(() => {
@@ -61,7 +74,7 @@ export default function StatusPage({ onBack }) {
         }, interval);
 
         return () => clearInterval(timer);
-    }, [selectedGroupIdx, currentStatusIdx, statusGroups, showViewers]); // ✅ Added showViewers dependency
+    }, [currentStatus, showViewers, handleNext]); // ✅ Added showViewers dependency
 
     // Track views
     useEffect(() => {
@@ -70,20 +83,7 @@ export default function StatusPage({ onBack }) {
                 headers: { Authorization: `Bearer ${user?.token}` }
             }).catch(e => console.error("View track failed", e));
         }
-    }, [currentStatus]);
-
-    const handleNext = () => {
-        if (!currentGroup) return;
-        if (currentStatusIdx < currentGroup.statuses.length - 1) {
-            setCurrentStatusIdx(currentStatusIdx + 1);
-        } else if (selectedGroupIdx < statusGroups.length - 1) {
-            const nextIdx = selectedGroupIdx + 1;
-            setSelectedGroupIdx(nextIdx);
-            setCurrentStatusIdx(0);
-        } else {
-            setSelectedGroupIdx(null);
-        }
-    };
+    }, [currentStatus, isMine, user?.id, user?.token]);
 
     const handlePrev = () => {
         if (!currentGroup) return;
@@ -186,7 +186,7 @@ export default function StatusPage({ onBack }) {
                             {/* OWNER RING: Always primary if exists, but we can make it green if unviewed by others or just primary */}
                             <div className={`w-12 h-12 rounded-full p-[2px] ${myGroup ? 'bg-primary' : 'bg-white/10'}`}>
                                 <div className="w-full h-full rounded-full border-2 border-black overflow-hidden bg-white/5">
-                                    {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{user?.full_name?.[0]}</div>}
+                                    {user?.avatar ? <img src={user.avatar} alt={user.full_name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{user?.full_name?.[0]}</div>}
                                 </div>
                             </div>
                             <div className="absolute bottom-0 right-0 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-white border border-black text-[10px] font-bold">+</div>
@@ -225,7 +225,7 @@ export default function StatusPage({ onBack }) {
                                     >
                                         <div className={`w-12 h-12 rounded-full p-[2px] transition-colors duration-500 ${hasUnviewed ? 'bg-green-500' : 'bg-white/20'}`}>
                                             <div className="w-full h-full rounded-full border-2 border-black overflow-hidden bg-white/5">
-                                                {g.user.avatar ? <img src={g.user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{g.user.full_name?.[0]}</div>}
+                                                {g.user.avatar ? <img src={g.user.avatar} alt={g.user.full_name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{g.user.full_name?.[0]}</div>}
                                             </div>
                                         </div>
                                         <div className="flex-1 overflow-hidden">
@@ -265,7 +265,7 @@ export default function StatusPage({ onBack }) {
                                     </button>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-white/10 shadow-lg">
-                                            {currentGroup?.user?.avatar ? <img src={currentGroup.user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{currentGroup?.user?.full_name?.[0]}</div>}
+                                            {currentGroup?.user?.avatar ? <img src={currentGroup.user.avatar} alt={currentGroup.user.full_name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{currentGroup?.user?.full_name?.[0]}</div>}
                                         </div>
                                         <div className="flex flex-col">
                                             <div className="text-white font-bold text-sm leading-tight drop-shadow-md">{currentGroup?.user?.full_name}</div>
@@ -328,7 +328,7 @@ export default function StatusPage({ onBack }) {
                                                         <div key={i} className="flex items-center gap-4">
                                                             <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10 border border-white/5">
                                                                 {isPopulated && v.avatar ? (
-                                                                    <img src={v.avatar} className="w-full h-full object-cover" />
+                                                                    <img src={v.avatar} alt={v.full_name} className="w-full h-full object-cover" />
                                                                 ) : (
                                                                     <div className="w-full h-full flex items-center justify-center text-white font-bold">
                                                                         {(isPopulated ? (v.full_name || v.phone) : 'U')[0]}

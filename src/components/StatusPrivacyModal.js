@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API_BASE } from "../api";
 import { useAuth } from "../context/AuthContext";
@@ -10,13 +10,7 @@ export default function StatusPrivacyModal({ isOpen, onClose, onConfirm }) {
     const [privacyMode, setPrivacyMode] = useState("all"); // "all" or "selected"
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (isOpen && privacyMode === "selected") {
-            fetchContacts();
-        }
-    }, [isOpen, privacyMode]);
-
-    const fetchContacts = async () => {
+    const fetchContacts = useCallback(async () => {
         setLoading(true);
         try {
             const { data } = await axios.get(`${API_BASE}/users/contacts`, {
@@ -28,7 +22,13 @@ export default function StatusPrivacyModal({ isOpen, onClose, onConfirm }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.token]);
+
+    useEffect(() => {
+        if (isOpen && privacyMode === "selected") {
+            fetchContacts();
+        }
+    }, [isOpen, privacyMode, fetchContacts]);
 
     const toggleUser = (userId) => {
         if (selectedUsers.includes(userId)) {
@@ -89,7 +89,7 @@ export default function StatusPrivacyModal({ isOpen, onClose, onConfirm }) {
                                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group"
                                         >
                                             <div className="w-10 h-10 rounded-full overflow-hidden bg-white/10">
-                                                {c.avatar ? <img src={c.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{c.full_name?.[0]}</div>}
+                                                {c.avatar ? <img src={c.avatar} alt={c.full_name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold">{c.full_name?.[0]}</div>}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-white text-sm font-bold truncate">{c.full_name}</div>

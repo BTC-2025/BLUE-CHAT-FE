@@ -207,6 +207,11 @@ export default function GroupCreateModal({ open, onClose, onCreated }) {
         }
       }
 
+      const timeout = setTimeout(() => {
+        setLoading(false);
+        alert("Group creation timed out. Please check your connection.");
+      }, 10000);
+
       // ✅ Emit socket event with proper callback handling
       socket.emit(
         "group:create",
