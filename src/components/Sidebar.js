@@ -189,10 +189,17 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
 
   const sortChats = (chatList, userId) => {
     return [...chatList].sort((a, b) => {
+      // 1. Self-chat always at the absolute top
+      if (a.isSelfChat && !b.isSelfChat) return -1;
+      if (!a.isSelfChat && b.isSelfChat) return 1;
+
+      // 2. Pinned chats next
       const aIsPinned = a.isPinned || a.pinnedBy?.includes(userId);
       const bIsPinned = b.isPinned || b.pinnedBy?.includes(userId);
       if (aIsPinned && !bIsPinned) return -1;
       if (!aIsPinned && bIsPinned) return 1;
+
+      // 3. Newest first
       return new Date(b.lastAt) - new Date(a.lastAt);
     });
   };
@@ -203,6 +210,23 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
     if (activeTab === "archived") return c.isArchived;
     return true; // fallback for others
   });
+
+  // ✅ Always ensure "Me" (self-chat) is visible at top of "chats" tab if not already there
+  let displayChats = filteredChats;
+  if (activeTab === "chats") {
+    const hasSelf = chats.some(c => c.isSelfChat);
+    if (!hasSelf) {
+      // Create a synthetic "Me" chat if it doesn't exist yet
+      displayChats = [{
+        id: "me-shortcut",
+        title: "Me",
+        isSelfChat: true,
+        lastMessage: "Message yourself to save notes/links",
+        unread: 0,
+        isSynthetic: true
+      }, ...filteredChats];
+    }
+  }
 
   const renderContent = () => {
     if (activeTab === "settings") {
@@ -382,10 +406,22 @@ export default function Sidebar({ onOpenChat, activeChatId, onViewStatus }) {
             </div>
           )} */}
           <ChatList
-            items={sortChats(filteredChats, user?.id)}
+            items={sortChats(displayChats, user?.id)}
             activeId={activeChatId}
             userId={user?.id}
-            onOpen={(chat) => {
+            onOpen={async (chat) => {
+              if (chat.isSynthetic) {
+                // "Me" shortcut clicked, open/create real chat
+                try {
+                  const { data } = await axios.post(`${API_BASE}/chats/open`,
+                    { targetPhone: user.phone },
+                    { headers: { Authorization: `Bearer ${user.token}` } }
+                  );
+                  onOpenChat(data);
+                  await load(); // Refresh to replace synthetic with real
+                } catch (e) { console.error("Self-chat init failed", e); }
+                return;
+              }
               onOpenChat(chat);
               setChats((prev) => prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c)));
             }}

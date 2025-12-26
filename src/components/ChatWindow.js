@@ -475,7 +475,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                     : (chat.other?.full_name?.[0] || chat.other?.phone?.slice(-2))}
                 </div>
                 {/* Online indicator */}
-                {!chat.isGroup && presence.isOnline && (
+                {!chat.isGroup && !chat.isSelfChat && presence.isOnline && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-primary animate-pulse" />
                 )}
               </div>
@@ -490,11 +490,14 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                     ? "Group"
                     : typing
                       ? <span className="animate-pulse-soft">Typing...</span>
-                      : presence.isOnline
-                        ? "Online"
-                        : chat.other?.lastSeen
-                          ? `last seen ${new Date(chat.other.lastSeen).toLocaleTimeString()}`
-                          : ""}
+                      : chat.isSelfChat
+                        ? "Notes & Links"
+                        : presence.isOnline
+                          ? "Online"
+                          : chat.other?.lastSeen
+                            ? `last seen ${new Date(chat.other.lastSeen).toLocaleTimeString()}`
+                            : ""
+                  }
                 </div>
               </div>
             </div>
@@ -523,7 +526,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                 </button>
               )}
 
-              {!chat.isGroup && (
+              {!chat.isGroup && !chat.isSelfChat && (
                 <>
                   {/* Audio Call Button */}
                   <button
@@ -548,7 +551,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                 </>
               )}
 
-              {!chat.isGroup && (
+              {!chat.isGroup && !chat.isSelfChat && (
                 <button
                   onClick={blockStatus.iBlockedThem ? handleUnblock : handleBlock}
                   className={`text-xs px-3 py-2 rounded-xl transition-all duration-200 font-semibold ring-1 ${blockStatus.iBlockedThem
@@ -596,7 +599,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
                         Clear Chat
                       </button>
 
-                      {!chat.isGroup && (
+                      {!chat.isGroup && !chat.isSelfChat && (
                         <button
                           onClick={handleReportUser}
                           className="w-full px-4 py-3 text-left text-sm font-medium text-orange-400/70 hover:text-orange-400 hover:bg-orange-500/5 transition-colors flex items-center gap-3"

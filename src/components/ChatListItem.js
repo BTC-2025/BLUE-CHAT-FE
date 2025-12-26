@@ -33,8 +33,8 @@ export default function ChatListItem({ item, active, onClick, userId }) {
     decrypt();
   }, [item.lastEncryptedBody, item.lastEncryptedKeys, item.lastMessage, privateKey, user.id]);
 
-  const avatarInitial = (item.title || "?")[0];
-  const displayName = item.title;
+  const avatarInitial = item.isSelfChat ? "Me" : (item.title || "?")[0];
+  const displayName = item.isSelfChat ? "Me" : item.title;
 
   // Check if chat is pinned for this user
   const isPinned = item.isPinned || item.pinnedBy?.includes(userId);
