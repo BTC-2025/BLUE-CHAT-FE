@@ -88,6 +88,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
         headers: { Authorization: `Bearer ${user?.token}` }
       });
       alert("User reported successfully. Thank you for helping keep our community safe.");
+      window.dispatchEvent(new CustomEvent("chats:refresh")); // ✅ Refresh to update report status
     } catch (err) {
       console.error("Report failed:", err);
       alert(err.response?.data?.message || "Failed to report user.");
@@ -737,11 +738,13 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
 
       {/* ✅ Input */}
       <div className="border-t border-background-dark p-2 sm:p-3 bg-white">
-        {blockStatus.isBlocked ? (
-          <div className="text-center text-primary/50 py-2 text-sm">
-            {blockStatus.iBlockedThem
-              ? "Unblock this user to send messages"
-              : "You cannot send messages to this user"}
+        {blockStatus.isBlocked || chat.other?.isReportedByMe ? (
+          <div className="text-center text-primary/50 py-2 text-sm italic">
+            {chat.other?.isReportedByMe
+              ? "You have reported this user. Communication is disabled."
+              : blockStatus.iBlockedThem
+                ? "Unblock this user to send messages"
+                : "You cannot send messages to this user"}
           </div>
         ) : (
           <ChatInput
