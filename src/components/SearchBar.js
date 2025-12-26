@@ -80,7 +80,9 @@ export default function SearchBar({ onOpen }) {
               {result.full_name?.[0] || "?"}
             </div>
             <div className="min-w-0">
-              <div className="font-bold text-[15px] truncate text-white">{result.full_name || "Unnamed"}</div>
+              <div className="font-bold text-[15px] truncate text-white">
+                {result.id === user.id ? "Message Yourself (You)" : (result.full_name || "Unnamed")}
+              </div>
               <div className="text-[11px] font-bold text-white/40 uppercase tracking-tighter">{result.phone}</div>
             </div>
           </div>

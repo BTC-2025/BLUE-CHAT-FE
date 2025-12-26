@@ -482,7 +482,7 @@ export default function ChatWindow({ chat, onBack, onStartCall }) {
 
               <div className="min-w-0">
                 <div className="font-bold text-sm sm:text-base truncate text-white group-hover/header:text-secondary transition-colors">
-                  {chat.isGroup ? chat.title : chat.other.full_name || chat.other.phone}
+                  {chat.title}
                 </div>
 
                 <div className="text-[10px] sm:text-xs text-secondary/90 font-medium flex items-center gap-1">
